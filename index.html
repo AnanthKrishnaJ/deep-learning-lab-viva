@@ -147,6 +147,8 @@ main { min-width: 0; }
 .card { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; min-width: 0; transition: transform .35s var(--ease), box-shadow .35s; }
 .card-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 12px 12px 14px; background: var(--surface); flex-wrap: wrap; min-height: 64px; }
 .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.code-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.code-actions .btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .tab { position: relative; overflow: hidden; padding: 8px 15px; border-radius: 999px; border: 1.5px solid var(--line-2); background: transparent; font: 600 .74rem var(--font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); transition: all .3s var(--ease); }
 .tab:hover { color: var(--ink); border-color: var(--ink); }
 .tab[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
@@ -2005,6 +2007,7 @@ window.CODE = {"e01": "# Step 1: Import the packages\nimport numpy as np\nimport
     play: '<svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></svg>',
     redo: '<svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>',
     copy: '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>',
+    hash: '<svg viewBox="0 0 24 24"><path d="M10 4L7 20M17 4l-3 16M5 9h15M4 15h15"/></svg>',
     check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     moon: '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>',
     sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>',
@@ -2291,6 +2294,24 @@ window.CODE = {"e01": "# Step 1: Import the packages\nimport numpy as np\nimport
     const b = $('.nav[data-exp="' + x.n + '"]'); if (b) b.classList.add("ran");
   }
 
+  /* drop Python # comments (quote-aware); whole-line comments vanish, extra blank lines collapse */
+  function stripComments(src) {
+    const out = [];
+    for (const line of src.split("\n")) {
+      let q = null, cut = -1;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (q) { if (ch === "\\") i++; else if (ch === q) q = null; }
+        else if (ch === '"' || ch === "'") q = ch;
+        else if (ch === "#") { cut = i; break; }
+      }
+      const kept = (cut < 0 ? line : line.slice(0, cut)).replace(/\s+$/, "");
+      if (cut >= 0 && !kept.trim()) continue;
+      out.push(kept);
+    }
+    return out.join("\n").replace(/\n{3,}/g, "\n\n").replace(/^\n+/, "");
+  }
+
   function stepsHTML(steps) {
     let h = "<ol>", open = false;
     for (const st of steps) {
@@ -2313,7 +2334,7 @@ window.CODE = {"e01": "# Step 1: Import the packages\nimport numpy as np\nimport
       '<div class="grid">' +
       '<section class="card" aria-label="Code"><div class="card-bar"><div class="tabs" role="tablist">' +
       part.codes.map((c, i) => '<button class="tab" role="tab" data-tab="' + i + '" aria-selected="' + (i === (st.tab < part.codes.length ? st.tab : 0)) + '">' + esc(c.label) + "</button>").join("") +
-      '</div><button class="btn" data-copy>' + ICON.copy + ' <span>Copy</span></button></div><div class="code-wrap"><pre class="code" tabindex="0"></pre></div><div class="live-note" data-codenote hidden></div></section>' +
+      '</div><div class="code-actions"><button class="btn" data-nocomm aria-pressed="false" title="Show the code without # comments">' + ICON.hash + ' <span>Hide comments</span></button><button class="btn" data-copy>' + ICON.copy + ' <span>Copy</span></button></div></div><div class="code-wrap"><pre class="code" tabindex="0"></pre></div><div class="live-note" data-codenote hidden></div></section>' +
       '<section class="card" aria-label="Live result"><div class="card-bar out-bar"><span class="status"><i></i><span data-status>Ready</span></span>' +
       '<div class="out-actions"><label class="seed"><input type="checkbox" data-lock> same data <b data-seed></b></label><button class="btn primary" data-run></button></div></div>' +
       '<div class="progress"><i></i></div><div class="stats"></div><div class="console" role="log" aria-live="off"></div>' +
@@ -2340,17 +2361,21 @@ window.CODE = {"e01": "# Step 1: Import the packages\nimport numpy as np\nimport
     ui.run.addEventListener("click", () => { if (st.status !== "run") runPart(part, ui); });
 
     /* code tabs */
-    const pre = $("pre.code"), note = $("[data-codenote]");
+    const pre = $("pre.code"), note = $("[data-codenote]"), commBtn = $("[data-nocomm]");
+    let noComm = !!store.get("noComments", false);
+    const srcOf = (c) => { const t = CODE[c.file] || "# code not found"; return noComm ? stripComments(t) : t; };
+    const syncComm = () => { commBtn.setAttribute("aria-pressed", String(noComm)); commBtn.querySelector("span").textContent = noComm ? "Show comments" : "Hide comments"; };
     const showTab = (i) => {
       st.tab = i; const c = part.codes[i];
-      pre.innerHTML = highlight(CODE[c.file] || "# code not found"); pre.parentNode.scrollTop = 0;
+      pre.innerHTML = highlight(srcOf(c)); pre.parentNode.scrollTop = 0;
       $$(".tab").forEach((b, k) => b.setAttribute("aria-selected", String(k === i)));
       note.hidden = !c.noRun; note.textContent = c.noRun ? "Reference version. The live run on the right follows the other tab." : "";
     };
     $$(".tab").forEach((b) => b.addEventListener("click", () => showTab(+b.dataset.tab)));
-    showTab(st.tab < part.codes.length ? st.tab : 0);
+    syncComm(); showTab(st.tab < part.codes.length ? st.tab : 0);
+    commBtn.addEventListener("click", () => { noComm = !noComm; store.set("noComments", noComm); syncComm(); showTab(st.tab < part.codes.length ? st.tab : 0); });
     $("[data-copy]").addEventListener("click", (ev) => {
-      const btn = ev.currentTarget, text = CODE[part.codes[st.tab < part.codes.length ? st.tab : 0].file] || "";
+      const btn = ev.currentTarget, text = srcOf(part.codes[st.tab < part.codes.length ? st.tab : 0]);
       const done = () => { btn.innerHTML = ICON.check + " <span>Copied</span>"; setTimeout(() => { btn.innerHTML = ICON.copy + " <span>Copy</span>"; }, 1400); };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done)); else fallbackCopy(text, done);
     });
