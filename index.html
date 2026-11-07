@@ -1452,9 +1452,8 @@ pre.code .l:hover { background: rgba(255, 255, 255, .035); }
     ctx.log("");
     ctx.log(`Predicted marks for 7.5 hours: ${fx(f(7.5), 2)}`, "ok");
     ctx.chart({ type: "line", title: "Hours studied vs marks, with the regression line", xlabel: "Hours Studied", ylabel: "Marks", series: [
-      { name: "train data", x: tr.map((i) => H[i]), y: tr.map((i) => M[i]), points: true },
-      { name: "test data", x: te.map((i) => H[i]), y: yt, points: true },
-      { name: "regression line", x: [1, 10], y: [f(1), f(10)] } ] });
+      { name: "Actual data", x: H, y: M, points: true },
+      { name: "Regression line", x: [1, 10], y: [f(1), f(10)], plain: true } ] });
     ctx.stat("slope", fx(w, 3)); ctx.stat("intercept", fx(b, 3)); ctx.stat("RMSE", fx(rmse, 2)); ctx.stat("R²", fx(r2s, 3), r2s > 0.7 ? "ok" : "warn");
   };
 
@@ -1964,11 +1963,16 @@ window.CODE = {"e01": "import numpy as np\nimport pandas as pd\nimport matplotli
       g.save(); g.beginPath(); g.rect(pad.l - 4, 0, pw * t + 8, H); g.clip();
       S.forEach((q, k) => {
         const col = P[k % P.length];
+        if (q.s.points) { /* scatter: dots only, no connecting line */
+          g.fillStyle = col; g.globalAlpha = 0.8;
+          q.y.forEach((v, i) => { if (!isFinite(v)) return; g.beginPath(); g.arc(X(q.x[i]), Y(v), 3.6, 0, 6.2832); g.fill(); });
+          g.globalAlpha = 1; return;
+        }
         g.strokeStyle = col; g.lineWidth = q.s.dashed ? 1.6 : 2.2; g.lineJoin = "round"; g.lineCap = "round"; g.setLineDash(q.s.dashed ? [5, 4] : []);
         g.beginPath(); let started = false;
         q.y.forEach((v, i) => { if (!isFinite(v)) return; const px = X(q.x[i]), py = Y(v); if (!started) { g.moveTo(px, py); started = true; } else g.lineTo(px, py); });
         g.stroke(); g.setLineDash([]);
-        if (!q.s.dashed && q.y.length <= 30) { g.fillStyle = cssv("--surface"); g.lineWidth = 1.8; q.y.forEach((v, i) => { if (!isFinite(v)) return; g.beginPath(); g.arc(X(q.x[i]), Y(v), 2.8, 0, 6.2832); g.fill(); g.stroke(); }); }
+        if (!q.s.dashed && !q.s.plain && q.y.length <= 30) { g.fillStyle = cssv("--surface"); g.lineWidth = 1.8; q.y.forEach((v, i) => { if (!isFinite(v)) return; g.beginPath(); g.arc(X(q.x[i]), Y(v), 2.8, 0, 6.2832); g.fill(); g.stroke(); }); }
       });
       g.restore();
       e.geom = { S, X, Y, pad, pw, ph, xmin, xmax, W, H };
@@ -2053,7 +2057,7 @@ window.CODE = {"e01": "import numpy as np\nimport pandas as pd\nimport matplotli
     function legendHTML(spec) {
       const P = pal();
       if (!spec.series || (spec.series.length < 2)) return "";
-      return '<div class="legend">' + spec.series.map((s, k) => '<span><i style="background:' + P[k % P.length] + '"></i>' + esc(s.name || "") + "</span>").join("") + "</div>";
+      return '<div class="legend">' + spec.series.map((s, k) => '<span><i style="background:' + P[k % P.length] + (s.points ? ';width:8px;height:8px;border-radius:50%' : "") + '"></i>' + esc(s.name || "") + "</span>").join("") + "</div>";
     }
 
     function paintImages(fig, spec) {
