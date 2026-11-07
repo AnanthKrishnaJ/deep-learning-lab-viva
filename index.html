@@ -984,6 +984,8 @@ pre.code .l:hover::before { color: var(--pop); }
   q(1, "What is the classic difference between TensorFlow and PyTorch?", "TensorFlow used static computation graphs; PyTorch builds dynamic graphs while the code runs", ["TensorFlow runs only on CPU; PyTorch runs only on GPU", "TensorFlow cannot train neural networks; PyTorch can", "PyTorch needs Keras to work; TensorFlow does not"], "Dynamic graphs make PyTorch easy to debug. Since TensorFlow 2.x, eager execution is the default too, and tf.function builds graphs for speed. TensorFlow is more production oriented (TensorBoard, TensorFlow Lite).", 1);
   q(1, "Why is Keras considered user-friendly?", "It offers a clean high-level API that hides low-level details", ["It does not need any dataset", "It trains models without a loss function", "It only works with pre-trained models"], "Keras lets you focus on model design in a few lines of code and runs on top of TensorFlow with GPU/TPU support.", 1);
   q(1, "Which company developed TensorFlow?", "Google", ["Facebook", "Microsoft", "Apple"], "TensorFlow was developed by Google. PyTorch came from Facebook (Meta).", 1);
+  q(1, "In the lab, Sequential([Input(3), Dense(4, relu), Dense(1, sigmoid)]) has how many parameters?", "21", ["12", "16", "7"], "(3·4 + 4) + (4·1 + 1) = 16 + 5 = 21.");
+  q(1, "For a = [1, 2, 3] and b = [4, 5, 6], what is np.dot(a, b)?", "32", ["[4 10 18]", "21", "[5 7 9]"], "1·4 + 2·5 + 3·6 = 4 + 10 + 18 = 32. a + b gives [5 7 9].");
   q(1, "What is tf.GradientTape used for?", "Recording operations so gradients can be computed automatically", ["Saving a trained model to disk", "Loading a dataset from the internet", "Plotting the training curves"], "Operations inside the tape are recorded; tape.gradient(y, x) returns dy/dx by automatic differentiation.");
   q(1, "For y = x² + 3x, what does tape.gradient(y, x) return at x = 2?", "7", ["4", "10", "3"], "dy/dx = 2x + 3 = 2·2 + 3 = 7.");
   q(1, "A Keras model Sequential([Dense(16, input_shape=(4,)), Dense(8), Dense(3)]) has how many parameters?", "243", ["27", "136", "216"], "(4·16+16) + (16·8+8) + (8·3+3) = 80 + 136 + 27 = 243.");
@@ -1027,15 +1029,15 @@ pre.code .l:hover::before { color: var(--pop); }
   q(3, "What is the limitation of a single-layer perceptron?", "It can only learn linearly separable patterns", ["It needs labelled images", "It cannot be trained", "It always overfits"], "To model complex relationships we use multi-layer networks with non-linear activations.", 1);
   q(3, "The sign activation outputs +1 or −1. Why is it unsuitable for backpropagation?", "Its gradient is zero everywhere (and undefined at 0), so no error signal flows back", ["It is too slow", "It outputs probabilities", "It needs a bias"], "Gradient-based learning needs useful derivatives; a step/sign function is flat on both sides of the jump.", 1);
   q(3, "What is the minimum hidden layer needed to solve XOR?", "One hidden layer with 2 neurons", ["No hidden layer", "Three hidden layers", "One hidden layer with 1 neuron"], "Two hidden neurons can compute OR and AND, and the output combines them as OR AND NOT AND.");
-  q(3, "In the hand-built XOR network, the two hidden neurons compute…", "OR and AND", ["NOR and NOT", "XOR and XNOR", "Two copies of AND"], "Output = h1 AND NOT h2, i.e. OR but not AND, which is exactly XOR.");
+  q(3, "In the pre-initialized XOR network (W1 = [[20, −20], [20, −20]], b1 = [−10, 30]), the two hidden neurons act as…", "OR and NAND", ["NOR and NOT", "XOR and XNOR", "Two copies of AND"], "The output neuron (W2 = [[20], [20]], b2 = −30) is an AND gate, and OR AND NAND = XOR.");
   q(3, "What is backpropagation?", "Computing the gradient of the loss with respect to every weight using the chain rule, from output back to input", ["Running the network backwards to generate data", "Removing neurons that are not needed", "Shuffling the training set"], "Forward pass computes outputs and loss; backward pass computes gradients which an optimizer uses to update weights.", 1);
   q(3, "Why is sigmoid used instead of a step function in the XOR backprop program?", "It is smooth and differentiable", ["It is faster to compute", "It outputs values larger than 1", "It does not need weights"], "The derivative σ'(z) = σ(z)(1 − σ(z)) is needed for the chain rule.");
   q(3, "What is the derivative of the sigmoid σ(z)?", "σ(z)·(1 − σ(z))", ["1 − σ(z)²", "σ(z)²", "max(0, z)"], "This is why d_out = (out − y) · out · (1 − out) appears in the code.");
   q(3, "What happens if all weights are initialised to zero?", "All neurons in a layer learn the same thing (symmetry is never broken)", ["The network trains faster", "Gradients explode", "The loss becomes negative"], "Every neuron gets identical gradients, so they stay identical.", 1);
   q(3, "The XOR backprop network sometimes plateaus with a high loss and some wrong answers. How can this be fixed?", "Re-run with a different random initialisation or add hidden neurons", ["Use a smaller dataset", "Remove the bias", "Use a step activation"], "Gradient descent can get stuck in a poor local minimum depending on the starting weights.");
-  q(3, "In MLPClassifier(hidden_layer_sizes=(8,), activation=\"tanh\", solver=\"lbfgs\"), what does hidden_layer_sizes=(8,) mean?", "One hidden layer with 8 neurons", ["8 hidden layers with 1 neuron each", "8 training epochs", "8 output classes"], "Each number in the tuple is one hidden layer; (8, 4) would be two hidden layers.");
-  q(3, "Why is solver='lbfgs' a good choice for XOR in MLPClassifier?", "It is a full-batch quasi-Newton method that converges fast on very small datasets", ["It is the only solver that supports tanh", "It adds dropout", "It needs no training data"], "scikit-learn recommends lbfgs for small datasets; adam (the default) suits large ones.");
-  q(3, "Which MLPClassifier method returns the probability of each class?", "predict_proba()", ["predict()", "score()", "fit()"], "predict() returns the class (0 or 1), score() returns accuracy.");
+  q(3, "Which loss and output activation does the Keras XOR program use?", "Binary cross-entropy with a sigmoid output", ["Categorical cross-entropy with softmax", "MSE with ReLU", "Hinge loss with tanh"], "XOR is a binary classification problem, so the output is one probability.");
+  q(3, "In the XOR backpropagation program, what is the output delta δo?", "e × ŷ(1 − ŷ), where e = y − ŷ", ["e × h", "ŷ − h", "W2 × e"], "It is the error times the sigmoid derivative at the output; the hidden delta is (δo · W2ᵀ) × h(1 − h).");
+  q(3, "Why does the XOR backprop program use W += η·(…) instead of W −= η·(…)?", "Because the error is defined as e = y − ŷ, which is already the negative gradient direction", ["Because the learning rate is negative", "To make the weights grow without limit", "Because sigmoid has a negative derivative"], "With e = ŷ − y you would subtract; both forms are the same gradient-descent step.");
   q(3, "How many trainable parameters has a 2 – 8 – 1 Dense network?", "33", ["25", "17", "41"], "(2·8 + 8) + (8·1 + 1) = 24 + 9 = 33.");
   q(3, "What is a multilayer perceptron (MLP)?", "A feed-forward network with one or more hidden layers; every neuron connects to all neurons of the next layer", ["A network with feedback loops only", "A network without any weights", "A network with exactly two inputs"], "MLPs are fully connected and learn non-linear mappings through hidden layers.", 1);
   q(3, "Why do we need multiple layers?", "Each layer learns a different level of abstraction", ["To increase the batch size", "To avoid using activation functions", "To make the network linear"], "Early layers capture low-level features (edges, colours), deeper layers capture high-level ones (objects, meanings).", 1);
@@ -1049,7 +1051,9 @@ pre.code .l:hover::before { color: var(--pop); }
   q(4, "What is the IQR rule for detecting outliers?", "Values below Q1 − 1.5·IQR or above Q3 + 1.5·IQR", ["Values more than 10 away from the mean", "Values equal to the median", "The smallest 5% of values"], "IQR = Q3 − Q1. The fences mark the usual range of the data.");
   q(4, "Which statistic is robust to outliers when filling missing values?", "The median", ["The mean", "The maximum", "The sum"], "A single huge salary changes the mean a lot but barely moves the median.");
   q(4, "What does clipping (winsorising) an outlier do?", "Replaces values beyond a limit with the limit itself", ["Deletes the whole column", "Scales it to [0, 1]", "Converts it to text"], "It keeps the row but caps the extreme value.");
-  q(4, "The City column contains 'Chennai', 'chennai' and ' CHENNAI '. This is an example of…", "Inconsistent data values", ["Missing values", "Outliers", "Class imbalance"], "Fix with .str.strip().str.title() so that all spellings become one label.");
+  q(4, "The Sex column of the Titanic data contains 'male', ' Male' and 'MALE'. This is an example of…", "Inconsistent data values", ["Missing values", "Outliers", "Class imbalance"], "Fix with .str.lower().str.strip() so that all spellings become one value.");
+  q(4, "In the Titanic program, how are missing Embarked values filled?", "With the mode (most frequent port)", ["With the mean", "With zero", "By deleting the column"], "Embarked is categorical, so the mode is used; Age is numeric, so the median is used.");
+  q(4, "In the Titanic program, what is done with the Fare outliers found by the IQR rule?", "The outlier rows are removed and the size before and after is compared", ["They are replaced by the mean", "They are converted to text", "Nothing, they are only plotted"], "df[(Fare >= lower) & (Fare <= upper)] keeps only rows inside the limits.");
   q(4, "Which pandas expression counts the missing values per column?", "df.isna().sum()", ["df.describe()", "df.shape", "df.dropna().count()"], "isna() marks missing cells and sum() counts them column by column.");
   q(4, "Why should a scaler be fitted on the training data only?", "To avoid data leakage from the test set", ["Because test data has no numbers", "To make training slower", "To remove outliers automatically"], "Statistics from the test set must not influence preprocessing.");
   q(4, "One-hot encoding is used for…", "Categorical features", ["Missing values", "Outlier removal", "Learning rates"], "Each category becomes its own 0/1 column.");
@@ -1065,6 +1069,7 @@ pre.code .l:hover::before { color: var(--pop); }
   q(5, "How many inputs does a Dense layer see after flattening a 32×32×3 image?", "3072", ["1024", "32", "96"], "32 · 32 · 3 = 3072.");
   q(5, "How many parameters does Dense(512) have when its input has 3072 values?", "1,573,376", ["1,572,864", "3,584", "524,288"], "3072 · 512 weights + 512 biases = 1,573,376.");
   q(5, "Which output layer and loss suit 10-class classification with integer labels?", "Softmax with sparse categorical cross-entropy", ["Sigmoid with MSE", "ReLU with binary cross-entropy", "Linear with hinge"], "Softmax gives class probabilities; the sparse loss accepts integer labels.");
+  q(5, "Why does the CIFAR-10 program call to_categorical(y_train, 10)?", "To turn integer labels into one-hot vectors for categorical cross-entropy", ["To normalise the pixels", "To flatten the images", "To split off a validation set"], "Label 3 becomes [0,0,0,1,0,0,0,0,0,0]. With integer labels you would use sparse_categorical_crossentropy instead.");
   q(5, "What does softmax do?", "Converts raw scores (logits) into probabilities that sum to 1", ["Sets negative values to zero", "Maps values to −1 or +1", "Normalises the input images"], "The class with the highest probability is the prediction.", 1);
   q(5, "Why do we need activation functions?", "They add non-linearity so the network can learn complex patterns", ["They reduce the number of weights", "They normalise the labels", "They choose the optimizer"], "Without them the model collapses to linear regression.", 1);
   q(5, "What is the ReLU activation?", "f(x) = max(0, x)", ["f(x) = 1 / (1 + e^−x)", "f(x) = tanh(x)", "f(x) = x²"], "It is sparse and avoids vanishing gradients for positive inputs.", 1);
@@ -1107,7 +1112,8 @@ pre.code .l:hover::before { color: var(--pop); }
   q(6, "Ensemble methods reduce error by…", "Combining several models (bagging, boosting, stacking)", ["Training a single deeper model", "Removing outliers", "Increasing dropout"], "Bagging mainly reduces variance; boosting mainly reduces bias.", 1);
   q(6, "High bias means the model is…", "Too simple and underfits", ["Too complex and overfits", "Perfect", "Trained on too much data"], "High variance is the overfitting case; the goal is a balance.", 1);
   q(6, "Which hyperparameter search methods are commonly used?", "Grid search and random search", ["Backpropagation and dropout", "Softmax and ReLU", "Padding and pooling"], "They try different settings and compare validation scores.", 1);
-  q(6, "In the lab run with all weights initialised to zero (ReLU network), what is expected?", "Loss stays near ln(4) and accuracy near chance because neurons stay identical", ["The fastest learning of all initialisers", "Exploding loss", "Perfect accuracy"], "Zero weights give identical neurons and dead ReLUs, so nothing is learned.");
+  q(6, "In Keras, which kernel_initializer gives Kaiming (He) initialization?", "\"he_normal\"", ["\"glorot_uniform\"", "\"zeros\"", "\"ones\""], "glorot_uniform is Xavier (the Keras default); he_normal is Kaiming, which suits ReLU.");
+  q(6, "In the lab, which model uses both Dropout(0.3) and l2(0.001)?", "Kaiming + Dropout + L2", ["Xavier", "Kaiming", "Kaiming + SGD"], "It combines two regularization techniques to reduce overfitting.");
   q(6, "In the regularisation comparison, which gap shows overfitting?", "Training accuracy much higher than validation accuracy", ["Validation accuracy higher than training accuracy", "Both accuracies equal to 0.25", "A loss of exactly 0"], "Regularisation (L2, dropout) aims to shrink this gap.");
   q(6, "A learning rate that is far too high for SGD usually causes…", "Oscillation or divergence of the loss", ["Perfect convergence", "Zero gradients", "Smaller models"], "Finding a good learning rate is critical.", 1);
 
@@ -1136,7 +1142,7 @@ pre.code .l:hover::before { color: var(--pop); }
   q(7, "What is the role of softmax in the CNN output layer?", "Convert logits into class probabilities that sum to 1", ["Reduce overfitting", "Extract edges", "Down-sample the image"], "Used for multi-class classification.", 1);
   q(7, "What does the Flatten layer do?", "Turns the stacked feature maps into a 1D vector for the Dense layer", ["Removes the background", "Increases the number of filters", "Normalises each filter"], "It connects the convolutional part to the classifier.");
   q(7, "How many images are in the MNIST training set?", "60,000 (28×28 grey-scale digits)", ["10,000 colour images", "50,000 reviews", "1.2 million images"], "Plus 10,000 test images.");
-  q(7, "Why is Dropout(0.5) placed before the final Dense layer in the lab CNN?", "To reduce overfitting of the classifier", ["To increase the image size", "To compute the loss", "To select filters"], "It randomly disables half of the features during training.");
+  q(7, "In the lab CNN, what does Dense(128, activation='relu') after Flatten do?", "Learns combinations of the extracted features before the final classification", ["Shrinks the image by half", "Adds colour channels", "Computes the loss"], "Flatten turns the feature maps into a vector; Dense(128) combines them and Dense(10, softmax) gives the class probabilities.");
   q(7, "Which is a limitation of CNNs?", "They need large labelled datasets and are sensitive to adversarial attacks", ["They cannot process images", "They have no parameters", "They cannot run on GPUs"], "Long-range dependencies are better handled by Transformers.", 1);
   q(7, "Why are CNNs preferred over feed-forward networks for images?", "Parameter sharing and local connectivity keep spatial relationships with far fewer parameters", ["They never overfit", "They do not need activation functions", "They use only 1 layer"], "A dense network cannot efficiently capture spatial structure.", 1);
   q(7, "Which layer reduces dimensionality and keeps essential information?", "Pooling layer", ["Dense layer", "Softmax layer", "Embedding layer"], "Pooling summarises small regions.", 1);
@@ -1151,7 +1157,7 @@ pre.code .l:hover::before { color: var(--pop); }
   q(8, "Why use a small learning rate when fine-tuning?", "To avoid destroying the useful pre-trained features", ["Because the dataset is huge", "Because there is no gradient", "To make the model larger"], "Large updates would overwrite what was learned.");
   q(8, "In Keras, VGG19(weights='imagenet', include_top=False) means…", "Load ImageNet weights and drop the original 1000-class classifier", ["Train from scratch with the top layers", "Load only the last layer", "Use no convolution layers"], "You then add your own Dense layers for the new task.");
   q(8, "What does base.trainable = False do?", "Freezes the base model's weights so they are not updated", ["Deletes the base model", "Doubles the learning rate", "Removes the bias terms"], "Only the layers you add are trained.");
-  q(8, "Why is MNIST converted to 3-channel 32×32 images for VGG19?", "VGG19 expects RGB input of at least 32×32", ["MNIST is too large", "VGG19 only accepts text", "To add noise"], "Grey-scale digits are resized and the channel is repeated three times; vgg19.preprocess_input then applies the ImageNet mean subtraction the weights were trained with.");
+  q(8, "Why are the MNIST images resized to 48×48 and converted to RGB in the VGG19 program?", "VGG19 expects 3-channel (RGB) input of at least 32×32", ["MNIST is too large", "VGG19 only accepts text", "To add noise"], "Grey-scale digits are resized and the channel is repeated three times; preprocess_input then applies the ImageNet preprocessing the weights were trained with.");
   q(8, "Which statement describes VGGNet?", "It uses only 3×3 convolutions and 2×2 pooling in a uniform structure", ["It introduced gates and memory cells", "It has only 8 layers and uses LRN only", "It uses skip connections"], "VGG-16/19 have 16/19 weight layers, ~138M (VGG-16) and ~144M (VGG-19) parameters, and are heavy.", 1);
   q(8, "What is a drawback of VGGNet?", "Computationally heavy and memory intensive (~138M parameters for VGG-16)", ["It cannot use ReLU", "It cannot classify images", "It has no convolution layers"], "Simplicity comes at a cost in size.", 1);
   q(8, "Which network won ImageNet in 2012 and popularised deep learning in vision?", "AlexNet", ["ResNet", "VGG19", "LeNet-5"], "8 layers (5 conv + 3 FC), ReLU, dropout, data augmentation, GPU training, top-5 error 15.3%.", 1);
@@ -1214,7 +1220,9 @@ pre.code .l:hover::before { color: var(--pop); }
   q(11, "What does the look-back window (e.g. 60) mean?", "The number of past days used as input to predict the next day", ["The number of epochs", "The number of LSTM layers", "The batch size"], "A series of N days gives N − look_back training windows.");
   q(11, "What input shape does an LSTM expect?", "(samples, time steps, features)", ["(features, samples)", "(samples, classes)", "(height, width, channels)"], "For 60 days of the Close price: (n, 60, 1).");
   q(11, "Why should a time series NOT be shuffled before the train/test split?", "Future data would leak into training and the order would be lost", ["Shuffling is slow", "LSTMs cannot read shuffled data", "It changes the scale"], "Use a chronological split, e.g. the first 80% for training.");
-  q(11, "Which scaler is typical in the lab?", "MinMaxScaler fitted on the training part only", ["One-hot encoder", "Tokenizer", "Label encoder"], "The test period is transformed with the same min and max.");
+  q(11, "Which scaler does the NIFTY-50 program use?", "MinMaxScaler, to map the prices to [0, 1]", ["One-hot encoder", "Tokenizer", "Label encoder"], "Strictly, fitting it on the training part only avoids leaking information from the test period.");
+  q(11, "Why does the first LSTM layer in the NIFTY-50 model use return_sequences=True?", "So the second LSTM layer receives the whole sequence of hidden states", ["To return the predicted price", "To shuffle the days", "To add dropout"], "Only the last LSTM before Dense(1) returns a single vector.");
+  q(11, "How does the NIFTY-50 program predict the next day's closing price?", "It feeds the last 60 scaled days to the model and inverse-transforms the output", ["It averages the last 60 prices", "It repeats today's price", "It uses the first 60 days"], "scaled[-60:].reshape(1, 60, 1) is one input sample; scaler.inverse_transform gives the price back.");
   q(11, "Why do we call scaler.inverse_transform on the predictions?", "To bring them back to real index points", ["To undo training", "To remove the bias", "To shuffle them"], "The network predicts scaled values between about 0 and 1.");
   q(11, "Which loss is typically used when forecasting a price?", "Mean squared error", ["Categorical cross-entropy", "Binary cross-entropy", "Hinge loss"], "It is a regression task.");
   q(11, "Why does the output layer of the forecaster have one linear neuron, Dense(1)?", "It predicts one continuous value, the next price", ["It classifies into 10 classes", "It applies softmax", "It reduces overfitting"], "No squashing activation is needed for a regression output.");
@@ -1274,67 +1282,67 @@ pre.code .l:hover::before { color: var(--pop); }
   const stand = (what, how) => `The live run cannot download ${what}, so it builds ${how} fresh on every run. Numbers are not comparable with the real dataset.`;
 
   G.EXPERIMENTS = [
-    { n: 1, title: "Package Introduction", short: "Packages", aim: "Familiarise basic Python packages for deep learning such as Keras and TensorFlow.",
-      parts: [{ id: "e1", label: "Packages", runner: "e1", codes: [{ label: "TensorFlow / Keras", file: "e01" }],
-        live: "The version lines print what is installed on your own computer, so the live run skips them. Tensors, GradientTape and the model summary are computed by the in-page engine.",
-        points: ["TensorFlow (Google) is the ecosystem; Keras is its high-level API; PyTorch (Meta) uses dynamic graphs.", "tf.GradientTape records operations and gives gradients automatically: that is how backpropagation is done for you.", "model.summary() lists layers, output shapes and parameter counts (weights + biases)."] }] },
+    { n: 1, title: "Package Introduction", short: "Packages", aim: "To familiarize with the basic Python packages used for deep learning: NumPy, Pandas, Matplotlib, TensorFlow and Keras.",
+      parts: [{ id: "e1", label: "Packages", runner: "e1", codes: [{ label: "Python", file: "e01" }],
+        live: "The version line prints what is installed on your own computer, so the live run skips it. The arrays, DataFrame, matrix product and model summary are computed in the page.",
+        points: ["NumPy handles arrays and maths, Pandas handles tables (DataFrames), Matplotlib draws plots.", "TensorFlow does the tensor maths (tf.constant, tf.matmul); Keras is its high-level API for building models.", "model.summary(): Dense(4) on 3 inputs has 3×4 + 4 = 16 parameters, Dense(1) has 4 + 1 = 5, total 21."] }] },
 
-    { n: 2, title: "Simple Linear Regression", short: "Linear regression", aim: "To implement simple linear regression.",
+    { n: 2, title: "Linear Expression", short: "Linear regression", aim: "To implement simple linear regression (y = mx + c) to predict the marks of a student from the hours studied, and to evaluate the model.",
       parts: [{ id: "e2", label: "Linear regression", runner: "e2", codes: [{ label: "scikit-learn", file: "e02" }],
-        live: "The live run cannot read your student_marks.csv, so it generates 50 students (hours studied 1–10, marks with noise) on every run and follows the same 12 steps: 80/20 split, least-squares fit, metrics and the 7.5-hour prediction.",
+        live: "The live run cannot read your student_marks.csv, so it generates 50 students (hours studied 1–10, marks with noise) on every run and follows the same steps: 80/20 split, least-squares fit, metrics and the 7.5-hour prediction.",
         points: ["Hours_Studied is the independent variable (X); Marks is the dependent variable (y). The model is y = m·x + c.", "LinearRegression finds the slope (coef_) and intercept (intercept_) by least squares: it minimises the sum of squared errors.", "MAE, MSE and RMSE measure error (RMSE is in marks); R² is the share of variance in marks explained by hours (1 = perfect)."] }] },
 
-    { n: 3, title: "XOR Gate", short: "XOR", aim: "XOR using pre-initialised weights, using backpropagation, and using scikit-learn MLPClassifier.",
+    { n: 3, title: "XOR Gate", short: "XOR", aim: "XOR implementation using pre-initialized weights, backpropagation, and in-built deep learning libraries.",
       parts: [
-        { id: "e3a", label: "A · Pre-initialised weights", runner: "e3a", codes: [{ label: "NumPy", file: "e03a" }],
-          live: "The weights are fixed by hand, so the truth table is the same on every run.",
-          points: ["XOR is not linearly separable, so a single perceptron fails; one hidden layer solves it.", "Hidden neurons compute OR and AND; the output is OR AND NOT AND.", "Weights and biases are chosen by hand: nothing is learned."] },
-        { id: "e3b", label: "B · Backpropagation", runner: "e3b", codes: [{ label: "NumPy from scratch", file: "e03b" }],
-          live: "Random starting weights on every run. Very rarely training gets stuck in a local minimum: run again and it usually succeeds.",
-          points: ["Forward pass → loss → backward pass with the chain rule → gradient descent update.", "Sigmoid is used because it is differentiable: σ' = σ(1 − σ).", "Random (not zero) initial weights break symmetry between hidden neurons."] },
-        { id: "e3c", label: "C · scikit-learn MLPClassifier", runner: "e3c", codes: [{ label: "scikit-learn", file: "e03c" }],
-          live: "scikit-learn cannot run in a web page, so the in-page engine trains the same 2-8-1 tanh network (with Adam instead of lbfgs) and prints the same output.",
-          points: ["MLPClassifier is a multi-layer perceptron: hidden_layer_sizes=(8,) gives one hidden layer of 8 neurons.", "activation='tanh' for the hidden layer; solver='lbfgs' suits tiny datasets like XOR's 4 rows.", "fit() trains with backpropagation; predict() gives 0/1 classes, predict_proba() the class probabilities; score() gives accuracy."] }] },
+        { id: "e3a", label: "A · Pre-initialized weights", runner: "e3a", codes: [{ label: "NumPy", file: "e03a" }],
+          live: "The weights are fixed by hand, so the output is the same on every run.",
+          points: ["XOR is not linearly separable, so a single neuron fails; a 2-2-1 network with one hidden layer solves it.", "W1 = [[20, −20], [20, −20]], b1 = [−10, 30]: h1 acts as OR and h2 acts as NAND.", "The output neuron (W2 = [[20], [20]], b2 = −30) acts as AND, and OR AND NAND = XOR. Nothing is learned (forward pass only)."] },
+        { id: "e3b", label: "B · Backpropagation", runner: "e3b", codes: [{ label: "NumPy", file: "e03b" }],
+          live: "Random starting weights on every run (the code fixes np.random.seed(42)). Very rarely training gets stuck in a local minimum: run again and it usually succeeds.",
+          points: ["Forward pass, then error e = y − ŷ, output delta δo = e·ŷ(1 − ŷ) and hidden delta δh = (δo·W2ᵀ)·h(1 − h).", "Weights are updated with W += η·(input)ᵀ·δ, learning rate η = 0.5, for 20000 epochs.", "Sigmoid is used because it is differentiable: σ' = σ(1 − σ). Random (not zero) weights break symmetry."] },
+        { id: "e3c", label: "C · Keras / TensorFlow", runner: "e3c", codes: [{ label: "Keras", file: "e03c" }],
+          live: "The in-page engine trains the same 2-8-1 network (ReLU hidden layer, sigmoid output) with Adam(0.05) and binary cross-entropy for 300 epochs.",
+          points: ["Input(2) → Dense(8, ReLU) → Dense(1, Sigmoid): 24 + 9 = 33 parameters.", "compile() sets Adam (learning rate 0.05), binary cross-entropy and accuracy; fit() trains for 300 epochs.", "predict() gives probabilities; rounding at 0.5 gives the XOR output. Keras does the backpropagation for you."] }] },
 
-    { n: 4, title: "Preprocessing", short: "Preprocessing", aim: "Data pre-processing: handling outliers and inconsistent data values.",
-      parts: [{ id: "e4", label: "Cleaning a messy table", runner: "e4", codes: [{ label: "pandas", file: "e04" }],
-        live: "The live run invents a messy table (wrong ages, mixed spellings, missing values, extreme salaries) and cleans it with the same steps as the code.",
-        points: ["Inconsistent values: unify text (strip, title-case) and remove impossible numbers.", "Missing values: fill with the median; outliers: IQR fences then clip.", "Scale numeric features: standardisation (z-score) or min-max to [0, 1], fitted on training data only."] }] },
+    { n: 4, title: "Preprocessing", short: "Preprocessing", aim: "To perform data preprocessing on the Titanic dataset: handle missing values, standardize inconsistent values, and detect and remove outliers using the IQR method.",
+      parts: [{ id: "e4", label: "Titanic preprocessing", runner: "e4", codes: [{ label: "pandas", file: "e04" }],
+        live: "The live run cannot read your titanic.csv, so it generates 200 Titanic-style passengers on every run (missing Age and Embarked, mixed spellings in Sex, skewed Fare) and applies the same steps. A sorted Fare plot with the IQR limits stands in for the box plot.",
+        points: ["Missing values: Age (numbers) is filled with the median, Embarked (a category) with the mode.", "Inconsistent values: .str.lower().str.strip() turns ' Male', 'MALE' and 'male ' into one value 'male'.", "Outliers: IQR = Q3 − Q1; rows with Fare below Q1 − 1.5·IQR or above Q3 + 1.5·IQR are removed."] }] },
 
-    { n: 5, title: "Feed Forward NN", short: "Feed-forward", aim: "Feed-forward neural network with three hidden layers for classification on CIFAR-10.",
+    { n: 5, title: "Feed Forward NN", short: "Feed-forward", aim: "To implement a Feed Forward Neural Network with three hidden layers for image classification on the CIFAR-10 dataset and evaluate its performance.",
       parts: [{ id: "e5", label: "FFNN on CIFAR-10", runner: "e5", codes: [{ label: "Keras", file: "e05" }],
         live: stand("CIFAR-10", "10 classes of small 8×8 colour images") + " The network is a scaled-down 192-128-64-32-10 version of the 3072-512-256-128-10 model in the code.",
-        points: ["Flatten 32×32×3 → 3072 inputs, then three ReLU hidden layers and a 10-way softmax.", "Loss: sparse categorical cross-entropy; optimizer: Adam; metric: accuracy.", "A feed-forward net ignores image structure, so accuracy stays modest: CNNs do much better."] }] },
+        points: ["Flatten 32×32×3 → 3072 inputs, then Dense 512, 256 and 128 (ReLU) and Dense 10 (softmax).", "Labels are one-hot encoded with to_categorical(), so the loss is categorical cross-entropy; the optimizer is Adam.", "A feed-forward net ignores image structure, so accuracy stays modest (about 50% on CIFAR-10): CNNs do much better."] }] },
 
-    { n: 6, title: "Optimization, Generalization & Initialization", short: "Optimisation", aim: "Impact of optimisation and weight initialisation (Xavier, Kaiming), dropout and regularisation, with performance visualised.",
+    { n: 6, title: "Optimization, Generalization & Initialization", short: "Optimisation", aim: "To analyse the impact of weight initialization (Xavier, Kaiming), dropout, L2 regularization and optimizers on a feed forward network using CIFAR-10, and to visualize the change in performance.",
       parts: [{ id: "e6", label: "Compare techniques", runner: "e6", codes: [{ label: "Keras", file: "e06" }],
-        live: "Runs 12 small networks on a fresh random 4-class dataset (120 training and 400 validation samples).",
-        points: ["Zeros → symmetry, nothing learned. Xavier for sigmoid/tanh, Kaiming (He) for ReLU.", "Momentum, RMSProp and Adam improve on plain SGD; Adam = momentum + RMSProp.", "L2, dropout and early stopping shrink the gap between training and validation accuracy."] }] },
+        live: "Trains 7 small networks on a fresh random 4-class dataset (120 training, 400 test samples) as a stand-in for CIFAR-10: four initialization and regularization set-ups, then SGD, RMSprop and Adam.",
+        points: ["Xavier (glorot_uniform) suits sigmoid/tanh; Kaiming (he_normal) suits ReLU layers.", "Dropout(0.3) and L2(0.001) reduce overfitting, so the gap between training and test accuracy gets smaller.", "Adam = momentum + RMSprop and usually learns faster than plain SGD."] }] },
 
-    { n: 7, title: "CNN", short: "CNN", aim: "Digit classification using a CNN architecture on the MNIST dataset.",
+    { n: 7, title: "CNN", short: "CNN", aim: "To classify handwritten digits of the MNIST dataset using a Convolutional Neural Network (CNN).",
       parts: [{ id: "e7", label: "CNN on MNIST", runner: "e7", codes: [{ label: "Keras", file: "e07" }],
-        live: stand("MNIST", "noisy 16×16 digit images with random shifts") + " The CNN is a smaller version (8 and 16 filters) of the 32/64-filter model in the code.",
-        points: ["Conv → ReLU → MaxPool → Conv → MaxPool → Flatten → Dropout → Dense softmax.", "Local connectivity and parameter sharing give far fewer parameters than a dense network.", "Feature maps show where each learned filter responds in the image."] }] },
+        live: stand("MNIST", "noisy 16×16 digit images with random shifts") + " The CNN is a smaller version (8 and 16 filters, Dense 64) of the model in the code.",
+        points: ["Conv2D(32) → MaxPool → Conv2D(64) → MaxPool → Flatten → Dense(128, ReLU) → Dense(10, softmax).", "Images are reshaped to (28, 28, 1) and scaled to [0, 1]; labels are one-hot, so the loss is categorical cross-entropy.", "Local connectivity and parameter sharing give far fewer parameters than a dense network."] }] },
 
-    { n: 8, title: "Transfer Learning", short: "Transfer", aim: "Digit classification using pre-trained networks such as VGGNet-19 on MNIST, with the performance improvement analysed and visualised.",
+    { n: 8, title: "Transfer Learning", short: "Transfer", aim: "To classify MNIST digits using the pre-trained VGG19 network (transfer learning), and to analyse and visualize the performance improvement.",
       parts: [{ id: "e8", label: "VGG19 on MNIST", runner: "e8", codes: [{ label: "Keras", file: "e08" }],
-        live: "VGG19 and its ImageNet weights are far too large to load in a web page. The live run does a miniature version of the same idea: a small CNN is pre-trained on letters A–J, then reused for digits with only 100 labelled images.",
-        points: ["Feature extraction: freeze the pre-trained base, train only the new classifier head.", "Fine-tuning: unfreeze the last layers and train with a very small learning rate.", "Pre-trained features (edges, textures) help most when the new dataset is small."] }] },
+        live: "VGG19 and its ImageNet weights are far too large to load in a web page. The live run does a miniature version of the same idea: a small CNN is pre-trained on letters A–Z, frozen, and reused for digits with only 100 labelled images, compared with training from scratch.",
+        points: ["Images are resized to 48×48 and turned into 3-channel RGB, then preprocess_input() applies VGG19's preprocessing.", "VGG19(weights='imagenet', include_top=False) with base.trainable = False is feature extraction: only the new layers are trained.", "New layers on top: Flatten → Dense(256, ReLU) → Dropout(0.5) → Dense(10, softmax)."] }] },
 
-    { n: 9, title: "RNN", short: "RNN", aim: "Implement a simple RNN for review classification using the IMDB dataset.",
+    { n: 9, title: "RNN", short: "RNN", aim: "To implement a simple Recurrent Neural Network (RNN) for sentiment classification of movie reviews using the IMDB dataset.",
       parts: [{ id: "e9", label: "SimpleRNN on IMDB", runner: "e9", codes: [{ label: "Keras", file: "e09" }],
         live: stand("the IMDB reviews", "toy reviews from a 50-word vocabulary (10 positive, 10 negative and 30 neutral words)") + " Real BPTT training of Embedding → SimpleRNN → Dense runs in the page.",
-        points: ["Embedding turns word indices into vectors; the RNN reads one word at a time and keeps a hidden state.", "Many-to-one task: a sigmoid output gives P(positive); loss = binary cross-entropy.", "Weights are shared across time steps; training uses backpropagation through time."] }] },
+        points: ["Vocabulary of 10000 words; every review is padded to 200 word indices with pad_sequences().", "Embedding(10000, 32) → SimpleRNN(32) → Dense(1, sigmoid); loss = binary cross-entropy (positive or negative).", "Weights are shared across time steps; training uses backpropagation through time."] }] },
 
-    { n: 10, title: "LSTM, GRU", short: "LSTM · GRU", aim: "Analyse and visualise the performance change when using LSTM and GRU instead of a simple RNN.",
+    { n: 10, title: "LSTM, GRU", short: "LSTM · GRU", aim: "To analyse and visualize the change in performance when LSTM and GRU are used instead of a simple RNN for IMDB review classification.",
       parts: [{ id: "e10", label: "RNN vs LSTM vs GRU", runner: "e10", codes: [{ label: "Keras", file: "e10" }],
-        live: "Uses a harder toy task where the verdict comes in the first three words and 37 filler words follow, to show why gates matter. Trains all three models in the page.",
-        points: ["LSTM: forget, input and output gates plus a cell state. GRU: update and reset gates.", "Gates keep a path for gradients, which reduces the vanishing-gradient problem.", "GRU has fewer parameters and trains faster; LSTM is slightly stronger on complex tasks."] }] },
+        live: "Uses a harder toy task where the verdict comes in the first three words and 37 filler words follow, to show why gates matter. The code trains each model for 3 epochs on real IMDB; the toy task needs more epochs.",
+        points: ["LSTM: forget, input and output gates plus a cell state. GRU: update and reset gates.", "Gates keep a path for gradients, which reduces the vanishing-gradient problem of the simple RNN.", "time.time() records the training time: GRU has fewer parameters and is usually faster than LSTM."] }] },
 
-    { n: 11, title: "Time Series", short: "Time series", aim: "Implement time-series forecasting prediction for the NIFTY-50 dataset.",
+    { n: 11, title: "Time Series", short: "Time series", aim: "To implement time series forecasting of the NIFTY-50 closing price using an LSTM network.",
       parts: [{ id: "e11", label: "LSTM forecaster", runner: "e11", codes: [{ label: "Keras", file: "e11" }],
-        live: "Cannot download NIFTY-50, so a synthetic daily 'Close' series (slow cycle plus random drift, 520 days) is generated on every run. Look-back is 20 days and the LSTM has 16 units.",
-        points: ["Scale with MinMaxScaler fitted on the training part, split in time order and build sliding windows.", "LSTM input shape is (samples, look_back, features); the output is Dense(1) with MSE loss.", "Always compare with the naive baseline (tomorrow = today): prices are close to a random walk."] }] },
+        live: "Cannot download NIFTY-50, so a synthetic daily 'Close' series (520 days) is generated on every run. Look-back is 20 days and one 16-unit LSTM is used instead of two 50-unit layers.",
+        points: ["MinMaxScaler maps prices to [0, 1]; the previous 60 days form one input of shape (60, 1).", "Split 80/20 in time order (no shuffling). LSTM(50, return_sequences=True) → Dropout(0.2) → LSTM(50) → Dropout(0.2) → Dense(1), MSE loss.", "RMSE gives the error in index points; the last 60 days give the next-day prediction."] }] },
   ];
 })(typeof window !== "undefined" ? window : globalThis);
 
@@ -1485,37 +1493,26 @@ pre.code .l:hover::before { color: var(--pop); }
   }
 
   R.e1 = async (ctx) => {
-    const { rng } = ctx;
-    ctx.log("# 1. tensors and basic maths", "dim");
-    const a = [0, 1].map(() => [0, 1, 2].map(() => r2(rng.randn())));
-    const b = [0, 1, 2].map(() => [0, 1].map(() => r2(rng.randn())));
-    const c = a.map((row) => [0, 1].map((j) => row.reduce((s, v, k) => s + v * b[k][j], 0)));
-    ctx.log("a =\n" + matStr(a)); ctx.log("b =\n" + matStr(b)); ctx.log("a @ b =\n" + matStr(c, 4), "ok");
+    ctx.log("TensorFlow version: (printed by the code on your own computer)", "dim");
     ctx.log("");
-    ctx.log("# 2. automatic differentiation (GradientTape)", "dim");
-    const x0 = r2(rng.uniform(-3, 3)), x = new V(x0), y = x.mul(x).add(x.mul(3));
-    y.backward();
-    ctx.log(`x = ${x0}   y = x**2 + 3*x = ${fx(y.v, 4)}`);
-    ctx.log(`dy/dx = ${fx(x.g, 4)}    (check: 2x + 3 = ${fx(2 * x0 + 3, 4)})`, "ok");
+    const a = [1, 2, 3], b = [4, 5, 6], dot = a.reduce((t, v, i) => t + v * b[i], 0);
+    ctx.log("a + b       : [" + a.map((v, i) => v + b[i]).join(" ") + "]");
+    ctx.log("Dot product : " + dot, "ok");
     ctx.log("");
-    ctx.log("# 3. a tiny Keras model", "dim");
-    const m = new DL.Model([new DL.DenseL(4, 16, { act: "relu" }, rng), new DL.DenseL(16, 8, { act: "relu" }, rng), new DL.DenseL(8, 3, { act: "softmax" }, rng)], "cce", DL.makeOpt("adam", 0.001));
-    const total = summary(ctx, [["dense (Dense)", "(None, 16)", 4 * 16 + 16], ["dense_1 (Dense)", "(None, 8)", 16 * 8 + 8], ["dense_2 (Dense)", "(None, 3)", 8 * 3 + 3]]);
-    const inp = Float64Array.from({ length: 4 }, () => rr(rng));
-    const pr = m.forward(inp, 1, false);
+    const names = ["Asha", "Ravi", "Meena", "John"], marks = [85, 72, 90, 64];
+    ctx.log("    Name  Marks", "head");
+    names.forEach((n, i) => ctx.log(padR(i, 2) + padL(n, 7) + padL(marks[i], 7)));
+    ctx.log("Mean of Marks: " + mean(marks), "ok");
     ctx.log("");
-    ctx.log("model.predict on one random input: [" + Array.from(pr).map((v) => v.toFixed(4)).join(", ") + "]");
-    ctx.log("softmax outputs add up to " + fx(pr[0] + pr[1] + pr[2], 4), "ok");
+    const t1 = [[1, 2], [3, 4]], t2 = [[5, 6], [7, 8]], mm = t1.map((r) => [0, 1].map((k) => r[0] * t2[0][k] + r[1] * t2[1][k]));
+    ctx.log("tf.matmul(t1, t2):");
+    ctx.log("[[" + mm[0].join(" ") + "]\n [" + mm[1].join(" ") + "]]", "ok");
     ctx.log("");
-    ctx.log("(the version lines in the code print the packages installed on your own machine)", "dim");
+    const total = summary(ctx, [["dense (Dense)", "(None, 4)", 3 * 4 + 4], ["dense_1 (Dense)", "(None, 1)", 4 * 1 + 1]]);
     const xs = [], ys = [];
-    for (let i = 0; i <= 40; i++) { const v = -4 + i * 0.2; xs.push(v); ys.push(v * v + 3 * v); }
-    ctx.chart({ type: "line", title: "y = x² + 3x with the tangent found by GradientTape", xlabel: "x", ylabel: "y", series: [
-      { name: "y = x² + 3x", x: xs, y: ys },
-      { name: "tangent (slope = dy/dx)", x: [x0 - 1.6, x0 + 1.6], y: [y.v - 1.6 * x.g, y.v + 1.6 * x.g], dashed: true },
-      { name: "chosen x", x: [x0], y: [y.v], points: true, big: true } ] });
-    ctx.stat("dy/dx", fx(x.g, 3)); ctx.stat("parameters", String(total));
-    function rr(g) { return r2(g.randn()); }
+    for (let i = 0; i < 100; i++) { const v = (2 * Math.PI * i) / 99; xs.push(v); ys.push(Math.sin(v)); }
+    ctx.chart({ type: "line", title: "sin(x)", xlabel: "x", ylabel: "sin(x)", series: [{ name: "sin(x)", x: xs, y: ys, plain: true }] });
+    ctx.stat("a + b", "[5 7 9]"); ctx.stat("dot product", String(dot)); ctx.stat("mean marks", String(mean(marks))); ctx.stat("parameters", String(total));
   };
 
   /* =====================================================================
@@ -1565,57 +1562,60 @@ pre.code .l:hover::before { color: var(--pop); }
      EXPERIMENT 3A — XOR with pre-initialised weights
      ===================================================================== */
   R.e3a = async (ctx) => {
-    const step = (z) => (z >= 0 ? 1 : 0);
-    const W1 = [[1, 1], [1, 1]], b1 = [-0.5, -1.5], W2 = [1, -1], b2 = -0.5;
-    const net = (x1, x2) => { const h1 = step(x1 * W1[0][0] + x2 * W1[1][0] + b1[0]), h2 = step(x1 * W1[0][1] + x2 * W1[1][1] + b1[1]); return [h1, h2, step(h1 * W2[0] + h2 * W2[1] + b2)]; };
-    ctx.log("hand-chosen weights:  h1 = OR(x1,x2)   h2 = AND(x1,x2)   out = h1 AND NOT h2", "dim");
-    ctx.log("x1 x2 | h1 h2 | out", "head");
-    const X = [[0, 0], [0, 1], [1, 0], [1, 1]];
-    for (const [a, b] of X) { const [h1, h2, o] = net(a, b); ctx.log(` ${a}  ${b} |  ${h1}  ${h2} |  ${o}`, o === (a ^ b) ? "ok" : "bad"); }
+    const sg = (z) => 1 / (1 + Math.exp(-z));
+    const W1 = [[20, -20], [20, -20]], b1 = [-10, 30], W2 = [20, 20], b2 = -30;
+    ctx.log("W1 = [[20, -20], [20, -20]]   b1 = [-10, 30]", "dim");
+    ctx.log("W2 = [[20], [20]]             b2 = [-30]", "dim");
+    ctx.log("h1 = OR(x1, x2)   h2 = NAND(x1, x2)   output = AND(h1, h2)", "dim");
     ctx.log("");
-    ctx.log("XOR solved with fixed weights: all 4 patterns correct.", "ok");
-    ctx.stat("truth table", "4 / 4 correct", "ok");
+    ctx.log("Input    h1     h2     y_hat    Output", "head");
+    let ok = 0;
+    for (const [x1, x2] of [[0, 0], [0, 1], [1, 0], [1, 1]]) {
+      const h1 = sg(x1 * W1[0][0] + x2 * W1[1][0] + b1[0]), h2 = sg(x1 * W1[0][1] + x2 * W1[1][1] + b1[1]);
+      const yh = sg(h1 * W2[0] + h2 * W2[1] + b2), o = yh >= 0.5 ? 1 : 0, good = o === (x1 ^ x2);
+      if (good) ok++;
+      ctx.log(`[${x1} ${x2}]  ${fx(h1, 3)}  ${fx(h2, 3)}  ${fx(yh, 4)}     ${o}`, good ? "ok" : "bad");
+    }
+    ctx.log("");
+    ctx.log(`XOR solved with fixed weights: ${ok}/4 correct.`, ok === 4 ? "ok" : "bad");
+    ctx.stat("truth table", `${ok} / 4 correct`, ok === 4 ? "ok" : "warn");
   };
 
   /* =====================================================================
      EXPERIMENT 3B — XOR with back-propagation from scratch
      ===================================================================== */
   R.e3b = async (ctx) => {
-    const { rng } = ctx, H = 4, lr = 0.5, EP = 10000;
+    const { rng } = ctx, H = 4, lr = 0.5, EP = 20000;
     const X = [[0, 0], [0, 1], [1, 0], [1, 1]], Y = [0, 1, 1, 0];
     const sg = (z) => 1 / (1 + Math.exp(-z));
-    const W1 = Array.from({ length: 2 }, () => Array.from({ length: H }, () => rng.randn())), b1 = new Array(H).fill(0);
-    const W2 = Array.from({ length: H }, () => rng.randn()); let b2 = 0;
-    const losses = [];
-    ctx.log(`network 2 - ${H} - 1 (sigmoid), learning rate ${lr}, ${EP} epochs`, "dim");
+    const W1 = [0, 1].map(() => Array.from({ length: H }, () => rng.uniform(-1, 1))), b1 = new Array(H).fill(0);
+    const W2 = Array.from({ length: H }, () => rng.uniform(-1, 1));
+    let b2 = 0, out = [], loss = 0;
+    ctx.log(`network 2 - ${H} - 1 (sigmoid), learning rate ${lr}, ${EP} epochs (random start on every run)`, "dim");
     for (let ep = 0; ep < EP; ep++) {
-      const dW1 = [[0, 0, 0, 0], [0, 0, 0, 0]], db1 = new Array(H).fill(0), dW2 = new Array(H).fill(0); let db2 = 0, loss = 0;
-      for (let s = 0; s < 4; s++) {
-        const h = new Array(H); for (let j = 0; j < H; j++) h[j] = sg(X[s][0] * W1[0][j] + X[s][1] * W1[1][j] + b1[j]);
-        let z = b2; for (let j = 0; j < H; j++) z += h[j] * W2[j]; const out = sg(z);
-        loss += (Y[s] - out) * (Y[s] - out) / 4;
-        const dOut = (out - Y[s]) * out * (1 - out);
-        db2 += dOut;
-        for (let j = 0; j < H; j++) {
-          dW2[j] += h[j] * dOut; const dh = dOut * W2[j] * h[j] * (1 - h[j]);
-          db1[j] += dh; dW1[0][j] += X[s][0] * dh; dW1[1][j] += X[s][1] * dh;
-        }
+      const dW1 = [new Array(H).fill(0), new Array(H).fill(0)], db1 = new Array(H).fill(0), dW2 = new Array(H).fill(0);
+      let db2 = 0; loss = 0; out = [];
+      for (let k = 0; k < 4; k++) {
+        const h = new Array(H);
+        for (let j = 0; j < H; j++) h[j] = sg(X[k][0] * W1[0][j] + X[k][1] * W1[1][j] + b1[j]);
+        let z = b2; for (let j = 0; j < H; j++) z += h[j] * W2[j];
+        const yh = sg(z), e = Y[k] - yh; out.push(yh); loss += (e * e) / 4;
+        const dO = e * yh * (1 - yh); db2 += dO;
+        for (let j = 0; j < H; j++) { dW2[j] += h[j] * dO; const dh = dO * W2[j] * h[j] * (1 - h[j]); db1[j] += dh; dW1[0][j] += X[k][0] * dh; dW1[1][j] += X[k][1] * dh; }
       }
-      for (let j = 0; j < H; j++) { W2[j] -= lr * dW2[j]; b1[j] -= lr * db1[j]; W1[0][j] -= lr * dW1[0][j]; W1[1][j] -= lr * dW1[1][j]; }
-      b2 -= lr * db2;
-      if (ep % 50 === 0) losses.push(loss);
-      if (ep % 1000 === 0 || ep === EP - 1) ctx.log(`epoch ${padL(ep, 5)}  loss = ${fx(loss, 6)}`);
-      if (ep % 500 === 0) { await ctx.yield(); if (ctx.stopped()) return; }
+      for (let j = 0; j < H; j++) { W2[j] += lr * dW2[j]; b1[j] += lr * db1[j]; W1[0][j] += lr * dW1[0][j]; W1[1][j] += lr * dW1[1][j]; }
+      b2 += lr * db2;
+      if (ep % 4000 === 0) ctx.log(`Epoch ${ep}  Loss: ${fx(loss, 6)}`);
+      if (ep % 1000 === 0) { ctx.progress((ep + 1) / EP); await ctx.yield(); if (ctx.stopped()) return; }
     }
-    const f = (x1, x2) => { let z = b2; for (let j = 0; j < H; j++) z += sg(x1 * W1[0][j] + x2 * W1[1][j] + b1[j]) * W2[j]; return sg(z); };
     ctx.log("");
-    ctx.log("x1 x2 | target | prediction", "head");
+    ctx.log("Input    Predicted   Output", "head");
     let ok = 0;
-    X.forEach(([a, b], i) => { const p = f(a, b); const good = (p > 0.5 ? 1 : 0) === Y[i]; if (good) ok++; ctx.log(` ${a}  ${b} |   ${Y[i]}    |  ${fx(p, 4)} -> ${p > 0.5 ? 1 : 0}`, good ? "ok" : "bad"); });
+    X.forEach(([a, b], i) => { const o = out[i] >= 0.5 ? 1 : 0, good = o === Y[i]; if (good) ok++; ctx.log(`[${a} ${b}]    ${fx(out[i], 4)}      ${o}`, good ? "ok" : "bad"); });
     ctx.log("");
     if (ok === 4) ctx.log("XOR learned: all 4 patterns correct.", "ok");
     else ctx.log(`Stuck in a local minimum (${ok}/4 correct). Press Run again: a different random start usually fixes it.`, "warn");
-    ctx.stat("patterns correct", `${ok} / 4`, ok === 4 ? "ok" : "warn"); ctx.stat("final loss", fx(losses[losses.length - 1], 5));
+    ctx.stat("patterns correct", `${ok} / 4`, ok === 4 ? "ok" : "warn"); ctx.stat("final loss", fx(loss, 6)); ctx.stat("epochs", String(EP));
   };
 
   /* =====================================================================
@@ -1623,90 +1623,73 @@ pre.code .l:hover::before { color: var(--pop); }
      ===================================================================== */
   R.e3c = async (ctx) => {
     const { rng } = ctx, X = new Float64Array([0, 0, 0, 1, 1, 0, 1, 1]), Y = new Float64Array([0, 1, 1, 0]);
-    ctx.log('MLPClassifier(hidden_layer_sizes=(8,), activation="tanh", solver="lbfgs")', "dim");
-    ctx.log("network 2 - 8 (tanh) - 1, log-loss", "dim");
+    summary(ctx, [["dense (Dense)", "(None, 8)", 24], ["dense_1 (Dense)", "(None, 1)", 9]]);
+    ctx.log("optimizer: Adam(learning_rate=0.05)   loss: binary_crossentropy   epochs: 300", "dim");
+    ctx.log("");
     let m, pr, ok = 0, tries = 0;
-    do { /* lbfgs converges on XOR; the in-page engine uses Adam and restarts if a run gets stuck */
+    do { /* a tiny ReLU net can start badly; like re-running the cell, start again with new weights */
       tries++;
-      m = new DL.Model([new DL.DenseL(2, 8, { act: "tanh" }, rng), new DL.DenseL(8, 1, { act: "sigmoid" }, rng)], "bce", DL.makeOpt("adam", 0.05));
+      m = new DL.Model([new DL.DenseL(2, 8, { act: "relu" }, rng), new DL.DenseL(8, 1, { act: "sigmoid" }, rng)], "bce", DL.makeOpt("adam", 0.05));
       await fitLogged(ctx, m, X, Y, 4, 2, { epochs: 300, batch: 4, quiet: true });
       if (ctx.stopped()) return;
-      pr = m.predict(X, 4, 2); ok = 0; for (let i = 0; i < 4; i++) if ((pr[i] > 0.5 ? 1 : 0) === Y[i]) ok++;
+      pr = m.predict(X, 4, 2); ok = 0;
+      for (let i = 0; i < 4; i++) if ((pr[i] >= 0.5 ? 1 : 0) === Y[i]) ok++;
     } while (ok < 4 && tries < 5);
+    if (tries > 1) ctx.log(`(retrained ${tries - 1} time${tries > 2 ? "s" : ""} with new random weights)`, "dim");
+    ctx.log(`Accuracy: ${fx(ok / 4, 1)}`, ok === 4 ? "ok" : "warn");
     ctx.log("");
-    ctx.log("x1 x2 | target | prediction", "head");
-    for (let i = 0; i < 4; i++) { const p = pr[i] > 0.5 ? 1 : 0; ctx.log(` ${X[2 * i]}  ${X[2 * i + 1]} |   ${Y[i]}    |   ${p}`, p === Y[i] ? "ok" : "bad"); }
-    ctx.log("");
-    ctx.log(`Accuracy     : ${fx(ok / 4, 1)}`, ok === 4 ? "ok" : "warn");
-    ctx.log("Probabilities:");
-    for (let i = 0; i < 4; i++) ctx.log(` [${fx(1 - pr[i], 3)}  ${fx(pr[i], 3)}]`);
-    ctx.stat("accuracy", pct(ok / 4, 0), ok === 4 ? "ok" : "warn"); ctx.stat("hidden neurons", "8 (tanh)");
+    ctx.log("Input    Probability   Output", "head");
+    for (let i = 0; i < 4; i++) { const o = pr[i] >= 0.5 ? 1 : 0; ctx.log(`[${X[2 * i]} ${X[2 * i + 1]}]    ${fx(pr[i], 4)}        ${o}`, o === Y[i] ? "ok" : "bad"); }
+    ctx.stat("accuracy", pct(ok / 4, 0), ok === 4 ? "ok" : "warn"); ctx.stat("parameters", "33");
   };
 
   /* =====================================================================
      EXPERIMENT 4 — preprocessing
      ===================================================================== */
   R.e4 = async (ctx) => {
-    const { rng } = ctx, N = 120;
-    const cities = ["Chennai", "Mumbai", "Delhi", "Bengaluru"], rows = [];
-    const messyCity = (c) => { const k = rng.int(5); return k === 0 ? c.toLowerCase() : k === 1 ? c.toUpperCase() : k === 2 ? " " + c + " " : c; };
-    const messyGender = () => rng.pick(["M", "m", "Male", "F", "female", "Female ", "male", "f"]);
+    const { rng } = ctx, N = 200;
+    const sexVar = (sx) => rng.pick(sx === "male" ? ["male", "male", "male", "Male", " male", "MALE", "male "] : ["female", "female", "female", "Female", " female", "FEMALE", "female "]);
+    const rows = [];
     for (let i = 0; i < N; i++) {
-      rows.push({ Age: Math.round(clamp(34 + 9 * rng.randn(), 19, 62)), Salary: Math.round(Math.exp(10.8 + 0.3 * rng.randn()) / 100) * 100, City: messyCity(rng.pick(cities)), Gender: messyGender() });
+      const pc = rng.next() < 0.24 ? 1 : rng.next() < 0.27 ? 2 : 3, sx = rng.next() < 0.65 ? "male" : "female";
+      const base = pc === 1 ? 60 : pc === 2 ? 20 : 11, fare = Math.round(base * Math.exp(0.55 * rng.randn()) * 100) / 100;
+      const surv = rng.next() < (sx === "female" ? 0.74 : 0.19) ? 1 : 0;
+      rows.push({ PassengerId: i + 1, Survived: surv, Pclass: pc, Sex: sexVar(sx), Age: rng.next() < 0.2 ? NaN : Math.round(clamp(29 + 14 * rng.randn(), 1, 80)), Fare: fare, Embarked: rng.next() < 0.012 ? null : rng.pick(["S", "S", "S", "S", "S", "S", "C", "C", "Q"]) });
     }
-    const bad = rng.perm(N);
-    [-5, 250, 999, 0].slice(0, 3 + rng.int(2)).forEach((v, k) => { rows[bad[k]].Age = v; });
-    for (let k = 0; k < 3 + rng.int(3); k++) rows[bad[10 + k]].Salary *= rng.pick([40, 60, 100]);
-    for (let k = 0; k < 6 + rng.int(4); k++) rows[bad[20 + k]].Age = NaN;
-    for (let k = 0; k < 6 + rng.int(4); k++) rows[bad[40 + k]].Salary = NaN;
-    const show = (title, cols) => {
-      ctx.log(title, "head");
-      ctx.log(padL("", 4) + cols.map((c) => padL(c.k, c.w)).join(""), "dim");
-      rows.slice(0, 6).forEach((r, i) => ctx.log(padL(i, 4) + cols.map((c) => padL(c.f(r), c.w)).join("")));
-    };
-    const fa = (v) => (Number.isNaN(v) ? "NaN" : String(v));
-    const colsRaw = [{ k: "Age", w: 7, f: (r) => fa(r.Age) }, { k: "Salary", w: 10, f: (r) => fa(r.Salary) }, { k: "City", w: 12, f: (r) => "'" + r.City + "'" }, { k: "Gender", w: 11, f: (r) => "'" + r.Gender + "'" }];
-    show("df.head()  (raw, as loaded)", colsRaw);
-    const uniq = (k) => new Set(rows.map((r) => r[k])).size, nanCount = (k) => rows.filter((r) => Number.isNaN(r[k])).length;
-    const before = { cityLabels: uniq("City"), genderLabels: uniq("Gender"), nanAge: nanCount("Age"), nanSal: nanCount("Salary") };
-    ctx.log(""); ctx.log("df.isna().sum()   ->   Age: " + before.nanAge + "   Salary: " + before.nanSal, "dim");
-    ctx.log(`distinct City labels: ${before.cityLabels}   distinct Gender labels: ${before.genderLabels}`, "dim");
+    rows[rng.int(N)].Embarked = null;
+    const cell = (v) => (v === null || Number.isNaN(v) ? "NaN" : String(v));
+    ctx.log("titanic.csv (generated: " + N + " passengers, new data every run)", "dim");
+    ctx.log("   PassengerId Survived Pclass  Sex         Age    Fare  Embarked", "head");
+    rows.slice(0, 5).forEach((r, i) => ctx.log(padR(i, 3) + padL(r.PassengerId, 11) + padL(r.Survived, 9) + padL(r.Pclass, 7) + "  " + padR("'" + r.Sex + "'", 10) + padL(cell(r.Age), 5) + padL(r.Fare.toFixed(2), 8) + padL(cell(r.Embarked), 10)));
     ctx.log("");
-    ctx.log("# 1. inconsistent values", "head");
-    const impossible = rows.filter((r) => !Number.isNaN(r.Age) && (r.Age < 0 || r.Age > 100)).length;
-    rows.forEach((r) => {
-      r.City = r.City.trim().toLowerCase().replace(/^./, (c) => c.toUpperCase());
-      r.Gender = r.Gender.trim().toLowerCase()[0] === "m" ? "Male" : "Female";
-      if (r.Age < 0 || r.Age > 100) r.Age = NaN;
-    });
-    ctx.log(`City labels: ${before.cityLabels} -> ${uniq("City")}      Gender labels: ${before.genderLabels} -> ${uniq("Gender")}`, "ok");
-    ctx.log(`impossible ages (<0 or >100) set to NaN: ${impossible}`);
+    const miss = (k) => rows.filter((r) => r[k] === null || Number.isNaN(r[k])).length;
+    const mAge = miss("Age"), mEmb = miss("Embarked");
+    ctx.log("Missing values:", "head");
+    ["PassengerId", "Survived", "Pclass", "Sex", "Age", "Fare", "Embarked"].forEach((k) => ctx.log(padR(k, 12) + padL(miss(k), 5), miss(k) ? "warn" : ""));
     await ctx.yield();
-    ctx.log(""); ctx.log("# 2. missing values (fill with the median)", "head");
-    const med = (k) => { const a = rows.map((r) => r[k]).filter((v) => !Number.isNaN(v)).sort((p, q) => p - q); return quantile(a, 0.5); };
-    const nAge = nanCount("Age"), nSal = nanCount("Salary"), mAge = med("Age"), mSal = med("Salary");
-    rows.forEach((r) => { if (Number.isNaN(r.Age)) r.Age = mAge; if (Number.isNaN(r.Salary)) r.Salary = mSal; });
-    ctx.log(`Age: ${nAge} missing -> filled with median ${mAge}`); ctx.log(`Salary: ${nSal} missing -> filled with median ${mSal}`);
-    ctx.log(""); ctx.log("# 3. outliers (IQR rule, then clip)", "head");
-    const sal = rows.map((r) => r.Salary), sorted = sal.slice().sort((a, b) => a - b);
-    const q1 = quantile(sorted, 0.25), q3 = quantile(sorted, 0.75), iqr = q3 - q1, low = q1 - 1.5 * iqr, high = q3 + 1.5 * iqr;
-    const outl = sal.filter((v) => v < low || v > high).length, rawMean = mean(sal), rawStd = std1(sal), rawSorted = sorted.slice();
-    ctx.log(`Q1 = ${q1.toFixed(0)}  Q3 = ${q3.toFixed(0)}  IQR = ${iqr.toFixed(0)}`);
-    ctx.log(`fences: [${low.toFixed(0)}, ${high.toFixed(0)}]   outliers found: ${outl}`, outl ? "warn" : "ok");
-    rows.forEach((r) => { r.Salary = clamp(r.Salary, low, high); });
-    const sal2 = rows.map((r) => r.Salary), m2 = mean(sal2), s2 = std1(sal2);
-    ctx.log(`Salary mean ${rawMean.toFixed(0)} -> ${m2.toFixed(0)}     std ${rawStd.toFixed(0)} -> ${s2.toFixed(0)}`, "ok");
-    ctx.log(""); ctx.log("# 4. scaling", "head");
-    const ages = rows.map((r) => r.Age), amin = Math.min(...ages), amax = Math.max(...ages);
-    rows.forEach((r) => { r.zs = (r.Salary - m2) / s2; r.mm = (r.Age - amin) / (amax - amin); });
-    const zs = rows.map((r) => r.zs);
-    ctx.log(`Salary_scaled (standardisation): mean = ${fx(mean(zs), 3)}   std = ${fx(std1(zs), 3)}`, "ok");
-    ctx.log(`Age_minmax (0 to 1): min = ${fx(Math.min(...rows.map((r) => r.mm)), 2)}   max = ${fx(Math.max(...rows.map((r) => r.mm)), 2)}`, "ok");
+    const ages = rows.filter((r) => !Number.isNaN(r.Age)).map((r) => r.Age).sort((x, y) => x - y), medAge = quantile(ages, 0.5);
+    const cnt = {}; rows.forEach((r) => { if (r.Embarked) cnt[r.Embarked] = (cnt[r.Embarked] || 0) + 1; });
+    const mode = Object.keys(cnt).sort((x, y) => cnt[y] - cnt[x])[0];
+    rows.forEach((r) => { if (Number.isNaN(r.Age)) r.Age = medAge; if (!r.Embarked) r.Embarked = mode; });
     ctx.log("");
-    show("df.head()  (cleaned)", [{ k: "Age", w: 7, f: (r) => String(r.Age) }, { k: "Salary", w: 10, f: (r) => r.Salary.toFixed(0) }, { k: "City", w: 11, f: (r) => r.City }, { k: "Gender", w: 9, f: (r) => r.Gender }, { k: "Sal_scaled", w: 12, f: (r) => fx(r.zs, 3) }, { k: "Age_mm", w: 9, f: (r) => fx(r.mm, 3) }]);
-    ctx.chart({ type: "line", title: "Salary values sorted: raw vs after IQR clipping", xlabel: "row (sorted)", ylabel: "salary", series: [{ name: "raw", y: rawSorted }, { name: "clipped", y: sal2.slice().sort((a, b) => a - b) }] });
-    ctx.chart({ type: "bars", title: "What cleaning changed", labels: ["Missing Age", "Missing Salary", "City labels", "Gender labels"], series: [{ name: "before", v: [before.nanAge, before.nanSal, before.cityLabels, before.genderLabels] }, { name: "after", v: [0, 0, uniq("City"), uniq("Gender")] }], fmt: "int" });
-    ctx.stat("outliers clipped", String(outl), outl ? "warn" : "ok"); ctx.stat("missing filled", String(nAge + nSal)); ctx.stat("rows", String(N));
+    ctx.log(`Age filled with the median (${medAge})   Embarked filled with the mode ('${mode}')`, "ok");
+    ctx.log(`Missing values after filling:  Age ${miss("Age")}   Embarked ${miss("Embarked")}`, "ok");
+    const before = [...new Set(rows.map((r) => r.Sex))];
+    rows.forEach((r) => { r.Sex = r.Sex.toLowerCase().trim(); });
+    ctx.log("");
+    ctx.log("Sex values before: " + before.map((v) => "'" + v + "'").join(", "), "dim");
+    ctx.log("Unique values in Sex: [" + [...new Set(rows.map((r) => r.Sex))].map((v) => "'" + v + "'").join(" ") + "]", "ok");
+    const fares = rows.map((r) => r.Fare).sort((x, y) => x - y), Q1 = quantile(fares, 0.25), Q3 = quantile(fares, 0.75), IQR = Q3 - Q1, lower = Q1 - 1.5 * IQR, upper = Q3 + 1.5 * IQR;
+    const out = rows.filter((r) => r.Fare < lower || r.Fare > upper).length, after = N - out;
+    ctx.log("");
+    ctx.log(`Q1 = ${fx(Q1, 2)}   Q3 = ${fx(Q3, 2)}   IQR = ${fx(IQR, 2)}`);
+    ctx.log(`Lower limit = ${fx(lower, 2)}   Upper limit = ${fx(upper, 2)}`);
+    ctx.log(`Number of outliers: ${out}`, out ? "warn" : "ok");
+    ctx.log(`Rows before: ${N}`);
+    ctx.log(`Rows after : ${after}`, "ok");
+    ctx.chart({ type: "line", title: "Fare (sorted) with the IQR limits", xlabel: "passenger, sorted by fare", ylabel: "Fare", series: [{ name: "Fare", y: fares, points: true }, { name: "upper limit", x: [1, N], y: [upper, upper], dashed: true }, { name: "lower limit", x: [1, N], y: [lower, lower], dashed: true }] });
+    ctx.chart({ type: "bars", title: "Rows before and after removing outliers", labels: ["Before", "After"], series: [{ name: "rows", v: [N, after] }], fmt: "int" });
+    ctx.stat("missing filled", String(mAge + mEmb)); ctx.stat("outliers removed", String(out), out ? "warn" : "ok"); ctx.stat("rows after", String(after));
   };
 
   /* =====================================================================
@@ -1738,9 +1721,9 @@ pre.code .l:hover::before { color: var(--pop); }
     ctx.log("CIFAR-10 stand-in: random 8x8 colour images, 10 classes (a fresh set on every run)", "dim");
     ctx.log(`x_train: (${ntr}, 192)   x_val: (${nv}, 192)   x_test: (${te.n}, 192)`, "dim"); ctx.log("");
     const m = new DL.Model([new DL.DenseL(192, 128, { act: "relu" }, rng), new DL.DenseL(128, 64, { act: "relu" }, rng), new DL.DenseL(64, 32, { act: "relu" }, rng), new DL.DenseL(32, 10, { act: "softmax" }, rng)], "cce", DL.makeOpt("adam", 0.001));
-    summary(ctx, [["dense (Dense)", "(None, 128)", 192 * 128 + 128], ["dense_1 (Dense)", "(None, 64)", 128 * 64 + 64], ["dense_2 (Dense)", "(None, 32)", 64 * 32 + 32], ["dense_3 (Dense)", "(None, 10)", 330]]);
+    summary(ctx, [["flatten (Flatten)", "(None, 192)", 0], ["dense (Dense)", "(None, 128)", 192 * 128 + 128], ["dense_1 (Dense)", "(None, 64)", 128 * 64 + 64], ["dense_2 (Dense)", "(None, 32)", 64 * 32 + 32], ["dense_3 (Dense)", "(None, 10)", 330]]);
     ctx.log("");
-    const h = await fitLogged(ctx, m, tr.X.subarray(0, ntr * 192), tr.y.subarray(0, ntr), ntr, 192, { epochs: E, batch: 32, valX: tr.X.subarray(ntr * 192), valY: tr.y.subarray(ntr), nv, progress: (e) => (e + 1) / E });
+    const h = await fitLogged(ctx, m, tr.X.subarray(0, ntr * 192), tr.y.subarray(0, ntr), ntr, 192, { epochs: E, batch: 64, valX: tr.X.subarray(ntr * 192), valY: tr.y.subarray(ntr), nv, progress: (e) => (e + 1) / E });
     const ev = m.evaluate(te.X, te.y, te.n, 192);
     ctx.log(""); ctx.log(`Test loss: ${fx(ev.loss)}   Test accuracy: ${fx(ev.acc)}`, "ok");
     const pr = m.predict(te.X, te.n, 192), cc = new Array(10).fill(0), cn = new Array(10).fill(0), items = [];
@@ -1771,28 +1754,42 @@ pre.code .l:hover::before { color: var(--pop); }
   }
   R.e6 = async (ctx) => {
     const { rng } = ctx, D = classifData(rng, 120, 400, 20, 4), E = 40;
-    const run = async (o, E2, curve) => { const m = mlp64(rng, o); const h = await DL.fit(m, D.tr.X, D.tr.y, D.tr.n, 20, Object.assign({ epochs: E2 || E, batch: 32, rng }, curve ? { valX: D.va.X, valY: D.va.y, nv: D.va.n } : {})); const tr = m.evaluate(D.tr.X, D.tr.y, D.tr.n, 20), va = m.evaluate(D.va.X, D.va.y, D.va.n, 20); await ctx.yield(); return { h, trainAcc: tr.acc, valAcc: va.acc, valLoss: va.loss }; };
-    ctx.log("data: 4 classes, 20 features, 120 training and 400 validation samples (new on every run)", "dim");
-    ctx.log("model: Dense 64 - 64 - 64 (ReLU) - Dense 4 (softmax)", "dim"); ctx.log("");
-    ctx.log("(a) WEIGHT INITIALISATION   optimizer: Adam", "head");
-    const inits = [["Zeros", { init: "zeros" }], ["Random N(0,1)", { init: "normal", std: 1 }], ["Xavier (Glorot)", { init: "glorot_uniform" }], ["Kaiming (He)", { init: "he_normal" }]];
-    const resA = [];
-    for (const [name, o] of inits) { const r = await run(o, E, true); resA.push(r); ctx.log(`${padR(name, 17)} final val_loss ${fx(r.valLoss, 3)}   val_acc ${fx(r.valAcc, 3)}`, r.valAcc < 0.4 ? "warn" : ""); ctx.progress(0.33 * (resA.length / 4)); if (ctx.stopped()) return; }
-    ctx.log(""); ctx.log("(b) OPTIMISERS   init: He normal", "head");
-    const opts = [["SGD 0.01", ["sgd", 0.01, {}]], ["SGD + momentum", ["sgd", 0.01, { momentum: 0.9 }]], ["RMSprop", ["rmsprop", 0.003, {}]], ["Adam", ["adam", 0.003, {}]]];
-    const resB = [];
-    for (const [name, op] of opts) { const r = await run({ init: "he_normal", opt: op }); resB.push(r); ctx.log(`${padR(name, 17)} final val_loss ${fx(r.valLoss, 3)}   val_acc ${fx(r.valAcc, 3)}`); ctx.progress(0.33 + 0.33 * (resB.length / 4)); if (ctx.stopped()) return; }
-    ctx.log(""); ctx.log("(c) REGULARISATION   init: He normal, Adam, 60 epochs", "head");
-    const regs = [["None", {}], ["L2 (0.01)", { l2: 0.01 }], ["Dropout 0.4", { drop: 0.4 }], ["L2 + Dropout", { l2: 0.005, drop: 0.3 }]];
-    const resC = [];
-    for (const [name, o] of regs) { const r = await run(Object.assign({ init: "he_normal" }, o), 60); resC.push(r); ctx.log(`${padR(name, 17)} train_acc ${fx(r.trainAcc, 3)}   val_acc ${fx(r.valAcc, 3)}   gap ${fx(r.trainAcc - r.valAcc, 3)}`, ""); ctx.progress(0.66 + 0.34 * (resC.length / 4)); if (ctx.stopped()) return; }
-    const best = resC.reduce((a, b, i) => (b.valAcc > resC[a].valAcc ? i : a), 0);
-    const gaps = resC.map((r) => r.trainAcc - r.valAcc), small = gaps.indexOf(Math.min(...gaps));
-    ctx.log(""); ctx.log(`smallest train/validation gap: ${regs[small][0]} (${fx(gaps[small], 3)})    best validation accuracy: ${regs[best][0]}`, "ok");
-    ctx.chart({ type: "line", title: "(a) Validation loss by initialisation", xlabel: "epoch", ylabel: "val loss", series: resA.map((r, i) => ({ name: inits[i][0], y: r.h.val_loss })) });
-    ctx.chart({ type: "bars", title: "(b) Final validation accuracy by optimiser", labels: opts.map((o) => o[0].replace("SGD + momentum", "SGD+mom")), series: [{ name: "val accuracy", v: resB.map((r) => r.valAcc) }], fmt: "pct", ymax: 1 });
-    ctx.chart({ type: "bars", title: "(c) Train vs validation accuracy (overfitting gap)", labels: regs.map((r) => r[0]), series: [{ name: "train", v: resC.map((r) => r.trainAcc) }, { name: "validation", v: resC.map((r) => r.valAcc) }], fmt: "pct", ymax: 1 });
-    ctx.stat("best init", inits[resA.reduce((a, b, i) => (b.valAcc > resA[a].valAcc ? i : a), 0)][0]); ctx.stat("best optimiser", opts[resB.reduce((a, b, i) => (b.valAcc > resB[a].valAcc ? i : a), 0)][0]); ctx.stat("best regulariser", regs[best][0]);
+    const run = async (o) => {
+      const m = mlp64(rng, o);
+      const h = await DL.fit(m, D.tr.X, D.tr.y, D.tr.n, 20, { epochs: E, batch: 32, rng, valX: D.va.X, valY: D.va.y, nv: D.va.n });
+      const tr = m.evaluate(D.tr.X, D.tr.y, D.tr.n, 20), te = m.evaluate(D.va.X, D.va.y, D.va.n, 20);
+      await ctx.yield();
+      return { h, trainAcc: tr.acc, testAcc: te.acc };
+    };
+    ctx.log("CIFAR-10 stand-in: 4 classes, 20 features, 120 training and 400 test samples (new on every run)", "dim");
+    ctx.log("model: three hidden Dense layers (ReLU) + softmax output", "dim");
+    ctx.log("");
+    ctx.log("Step 4: four models (optimizer Adam)", "head");
+    const setups = [["Xavier", { init: "glorot_uniform" }], ["Kaiming", { init: "he_normal" }], ["Kaiming + Dropout", { init: "he_normal", drop: 0.3 }], ["Kaiming + Dropout + L2", { init: "he_normal", drop: 0.3, l2: 0.001 }]];
+    const res = [];
+    for (const [name, o] of setups) {
+      const r = await run(o); res.push([name, r]);
+      ctx.log(`${padR(name, 24)} train acc ${fx(r.trainAcc, 3)}   test acc ${fx(r.testAcc, 3)}`);
+      ctx.progress(res.length / 7); if (ctx.stopped()) return;
+    }
+    ctx.log("");
+    ctx.log("Step 5: Kaiming model with SGD, RMSprop and Adam", "head");
+    for (const [name, op] of [["SGD", ["sgd", 0.01, {}]], ["RMSPROP", ["rmsprop", 0.003, {}]], ["ADAM", ["adam", 0.003, {}]]]) {
+      const r = await run({ init: "he_normal", opt: op }); res.push(["Kaiming + " + name, r]);
+      ctx.log(`${padR("Kaiming + " + name, 24)} test acc ${fx(r.testAcc, 3)}`);
+      ctx.progress(res.length / 7); if (ctx.stopped()) return;
+    }
+    ctx.log("");
+    ctx.log("Step 6: test accuracy of every model", "head");
+    const best = res.reduce((x, y) => (y[1].testAcc > x[1].testAcc ? y : x));
+    res.forEach(([n, r]) => ctx.log(`${padR(n, 25)} test accuracy = ${fx(r.testAcc, 4)}`, n === best[0] ? "ok" : ""));
+    const gap = (i) => res[i][1].trainAcc - res[i][1].testAcc;
+    ctx.log("");
+    ctx.log(`train/test gap: Kaiming ${fx(gap(1), 3)}  ->  + Dropout ${fx(gap(2), 3)}  ->  + Dropout + L2 ${fx(gap(3), 3)}`, "dim");
+    const short = (n) => n.replace("Kaiming", "K").replace(" + Dropout", "+Drop").replace(" + L2", "+L2").replace(" + ", "+");
+    ctx.chart({ type: "line", title: "Validation accuracy of the four models", xlabel: "epoch", ylabel: "val accuracy", series: res.slice(0, 4).map(([n, r]) => ({ name: n, y: r.h.val_acc })), ymax: 1 });
+    ctx.chart({ type: "bars", title: "Test accuracy of every model", labels: res.map(([n]) => short(n)), series: [{ name: "test accuracy", v: res.map(([, r]) => r.testAcc) }], fmt: "pct", ymax: 1 });
+    ctx.stat("best model", best[0], "ok"); ctx.stat("best test acc", pct(best[1].testAcc));
   };
 
   /* =====================================================================
@@ -1803,17 +1800,23 @@ pre.code .l:hover::before { color: var(--pop); }
     const c2 = new DL.ConvL(p1.oh, p1.ow, 8, 16, 3, { act: "relu" }, rng), p2 = new DL.PoolL(c2.oh, c2.ow, 16);
     const flat = 16 * p2.oh * p2.ow, layers = [c1, p1, c2, p2];
     if (o.drop) layers.push(new DL.DropL(o.drop, rng));
-    layers.push(new DL.DenseL(flat, o.nOut || 10, { act: "softmax" }, rng));
+    if (o.hidden) { layers.push(new DL.DenseL(flat, o.hidden, { act: "relu" }, rng)); layers.push(new DL.DenseL(o.hidden, o.nOut || 10, { act: "softmax" }, rng)); }
+    else layers.push(new DL.DenseL(flat, o.nOut || 10, { act: "softmax" }, rng));
     return new DL.Model(layers, "cce", DL.makeOpt("adam", o.lr || 0.01));
   }
-  const cnnRows = (m) => { const c1 = m.layers[0], p1 = m.layers[1], c2 = m.layers[2], p2 = m.layers[3], d = m.layers[m.layers.length - 1]; return [["conv2d (Conv2D)", `(None, ${c1.oh}, ${c1.ow}, 8)`, c1.paramCount()], ["max_pooling2d", `(None, ${p1.oh}, ${p1.ow}, 8)`, 0], ["conv2d_1 (Conv2D)", `(None, ${c2.oh}, ${c2.ow}, 16)`, c2.paramCount()], ["max_pooling2d_1", `(None, ${p2.oh}, ${p2.ow}, 16)`, 0], ["flatten (Flatten)", `(None, ${d.nin})`, 0], ["dense (Dense)", "(None, 10)", d.paramCount()]]; };
+  const cnnRows = (m) => {
+    const L = m.layers, c1 = L[0], p1 = L[1], c2 = L[2], p2 = L[3], dense = L.filter((l) => l.kind === "dense");
+    const rows = [["conv2d (Conv2D)", `(None, ${c1.oh}, ${c1.ow}, 8)`, c1.paramCount()], ["max_pooling2d", `(None, ${p1.oh}, ${p1.ow}, 8)`, 0], ["conv2d_1 (Conv2D)", `(None, ${c2.oh}, ${c2.ow}, 16)`, c2.paramCount()], ["max_pooling2d_1", `(None, ${p2.oh}, ${p2.ow}, 16)`, 0], ["flatten (Flatten)", `(None, ${dense[0].nin})`, 0]];
+    dense.forEach((d, k) => rows.push([k ? "dense_" + k + " (Dense)" : "dense (Dense)", `(None, ${d.nout})`, d.paramCount()]));
+    return rows;
+  };
 
   R.e7 = async (ctx) => {
     const { rng } = ctx, digits = "0123456789".split(""), NOISE = 0.28, E = 8;
     const tr = glyphSet(rng, digits, 100, NOISE), te = glyphSet(rng, digits, 30, NOISE), nv = 100, ntr = 900, dim = S * S;
     ctx.log("MNIST stand-in: noisy 16x16 digit images, shifted randomly (a fresh set on every run)", "dim");
     ctx.log(`x_train: (${ntr}, 16, 16, 1)   x_val: (${nv}, 16, 16, 1)   x_test: (${te.n}, 16, 16, 1)`, "dim"); ctx.log("");
-    const m = buildCNN(rng, { drop: 0.3, lr: 0.01 });
+    const m = buildCNN(rng, { hidden: 64, lr: 0.003 });
     summary(ctx, cnnRows(m)); ctx.log("");
     const h = await fitLogged(ctx, m, tr.X.subarray(0, ntr * dim), tr.y.subarray(0, ntr), ntr, dim, { epochs: E, batch: 32, valX: tr.X.subarray(ntr * dim), valY: tr.y.subarray(ntr), nv, progress: (e) => (e + 1) / E });
     const ev = m.evaluate(te.X, te.y, te.n, dim);
@@ -1821,6 +1824,7 @@ pre.code .l:hover::before { color: var(--pop); }
     const pr = m.predict(te.X, te.n, dim), items = []; let wrong = 0;
     const order = rng.perm(te.n);
     for (const i of order) { let b = 0; for (let j = 1; j < 10; j++) if (pr[i * 10 + j] > pr[i * 10 + b]) b = j; if (b !== te.y[i]) wrong++; if (items.length < 12) items.push({ d: te.X.subarray(i * dim, (i + 1) * dim), w: S, h: S, c: 1, caption: `pred ${b}` + (b === te.y[i] ? "" : ` (is ${te.y[i]})`), bad: b !== te.y[i] }); }
+    { const i = order[0]; let b = 0; for (let j = 1; j < 10; j++) if (pr[i * 10 + j] > pr[i * 10 + b]) b = j; ctx.log(`Test image -> Actual: ${te.y[i]}   Predicted: ${b}`, b === te.y[i] ? "ok" : "bad"); }
     const one = te.X.subarray(order[0] * dim, (order[0] + 1) * dim); m.forward(one, 1, false);
     const c1 = m.layers[0], fmaps = []; for (let f = 0; f < 8; f++) fmaps.push({ d: c1.out.slice(f * c1.oh * c1.ow, (f + 1) * c1.oh * c1.ow), w: c1.oh, h: c1.ow, c: 1, norm: true, caption: `filter ${f + 1}` });
     ctx.chart({ type: "line", title: "Accuracy per epoch", xlabel: "epoch", ylabel: "accuracy", series: [{ name: "train", y: h.acc }, { name: "validation", y: h.val_acc }], ymax: 1 });
@@ -1914,7 +1918,7 @@ pre.code .l:hover::before { color: var(--pop); }
     ctx.log("Results change with the random start: a gated cell can also get stuck now and then, so run it a few times.", "dim");
     ctx.chart({ type: "line", title: "Validation accuracy: RNN vs LSTM vs GRU", xlabel: "epoch", ylabel: "val accuracy", series: res.map((r) => ({ name: r.name, y: r.h.val_acc })), ymax: 1 });
     ctx.chart({ type: "line", title: "Training loss", xlabel: "epoch", ylabel: "loss", series: res.map((r) => ({ name: r.name, y: r.h.loss })) });
-    ctx.chart({ type: "bars", title: "Parameters (hidden size 16)", labels: res.map((r) => r.name), series: [{ name: "parameters", v: res.map((r) => r.params) }], fmt: "int" });
+    ctx.chart({ type: "bars", title: "Final validation accuracy", labels: res.map((r) => r.name), series: [{ name: "accuracy", v: fin }], fmt: "pct", ymax: 1 });
     ctx.stat("SimpleRNN", pct(fin[0]), "warn"); ctx.stat("LSTM", pct(fin[1]), fin[1] > fin[0] ? "ok" : ""); ctx.stat("GRU", pct(fin[2]), fin[2] > fin[0] ? "ok" : "");
   };
   const performance_now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
@@ -1927,9 +1931,9 @@ pre.code .l:hover::before { color: var(--pop); }
     const ph = rng.uniform(0, 6.28), p0 = rng.uniform(15000, 19000), drift = rng.uniform(0, 0.0003), amp = rng.uniform(0.03, 0.06), per = rng.uniform(45, 80);
     const close = []; let ar = 0;
     for (let t = 0; t < N; t++) { ar = 0.96 * ar + 0.008 * rng.randn(); close.push(p0 * Math.exp(drift * t + ar + amp * Math.sin((2 * Math.PI * t) / per + ph))); }
-    const split = Math.floor(N * 0.8), trainPart = close.slice(0, split), mn = Math.min(...trainPart), mx = Math.max(...trainPart), sc = (v) => (v - mn) / (mx - mn), inv = (v) => v * (mx - mn) + mn;
+    const split = Math.floor(N * 0.8), mn = Math.min(...close), mx = Math.max(...close), sc = (v) => (v - mn) / (mx - mn), inv = (v) => v * (mx - mn) + mn;
     ctx.log("NIFTY-50 stand-in: a synthetic daily 'Close' series (slow cycle + random drift around a trend), new on every run", "dim");
-    ctx.log(`days: ${N}   train: ${split}   test: ${N - split}   look_back: ${LB}   scaler: MinMax fitted on train only`, "dim"); ctx.log("");
+    ctx.log(`days: ${N}   train: ${split}   test: ${N - split}   look_back: ${LB}   scaler: MinMax on the whole series`, "dim"); ctx.log("");
     const scaled = close.map(sc), windows = (from, to) => { const X = [], y = []; for (let i = from; i < to; i++) { for (let k = i - LB; k < i; k++) X.push(scaled[k]); y.push(scaled[i]); } return { X: Float64Array.from(X), y: Float64Array.from(y), n: y.length }; };
     const tr = windows(LB, split), te = windows(split, N), nv = 40, ntr = tr.n - nv;
     const m = new DL.Model([new DL.RecL("lstm", 1, H, LB, rng), new DL.DenseL(H, 1, {}, rng)], "mse", DL.makeOpt("adam", 0.001));
@@ -1940,10 +1944,12 @@ pre.code .l:hover::before { color: var(--pop); }
     ctx.log(""); ctx.log(`LSTM RMSE on the test period : ${rmse.toFixed(1)} index points`, "ok");
     ctx.log(`naive baseline (tomorrow = today): ${naive.toFixed(1)} index points`, "dim");
     ctx.log(rmse < naive ? "The LSTM beat the naive baseline on this run." : "The naive baseline is as good or better: day-to-day moves are mostly random, which is why price forecasting is hard.", rmse < naive ? "ok" : "warn");
+    const nextDay = inv(m.predict(Float64Array.from(scaled.slice(N - LB)), 1, LB)[0]);
+    ctx.log(""); ctx.log(`Predicted next day closing price: ${nextDay.toFixed(1)}   (last close ${close[N - 1].toFixed(1)})`, "ok");
     ctx.chart({ type: "line", title: "Test period: actual vs predicted Close", xlabel: "day (test set)", ylabel: "index level", series: [{ name: "actual", y: act }, { name: "LSTM prediction", y: pred }] });
     ctx.chart({ type: "line", title: "Training loss (MSE on scaled prices)", xlabel: "epoch", ylabel: "loss", series: [{ name: "train", y: h.loss }, { name: "validation", y: h.val_loss }], logY: true });
     ctx.chart({ type: "line", title: "Full series with the train / test split", xlabel: "day", ylabel: "index level", series: [{ name: "Close", y: close }, { name: "test start", x: [split, split], y: [Math.min(...close), Math.max(...close)], dashed: true }] });
-    ctx.stat("RMSE", rmse.toFixed(1)); ctx.stat("naive RMSE", naive.toFixed(1)); ctx.stat("look_back", String(LB));
+    ctx.stat("RMSE", rmse.toFixed(1)); ctx.stat("naive RMSE", naive.toFixed(1)); ctx.stat("next day", nextDay.toFixed(0), "ok");
   };
 
   G.RUNNERS = R;
@@ -1952,7 +1958,7 @@ pre.code .l:hover::before { color: var(--pop); }
 
 </script>
 <script>
-window.CODE = {"e01": "import numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport tensorflow as tf\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\n\n# Installed versions\nprint(\"TensorFlow:\", tf.__version__)\nprint(\"Keras     :\", keras.__version__)\nprint(\"NumPy     :\", np.__version__)\nprint(\"Pandas    :\", pd.__version__)\n\n# 1. Tensors and basic maths\na = tf.random.normal((2, 3))\nb = tf.random.normal((3, 2))\nprint(\"a =\\n\", a.numpy())\nprint(\"b =\\n\", b.numpy())\nprint(\"a @ b =\\n\", tf.matmul(a, b).numpy())\n\n# 2. Automatic differentiation with GradientTape\nx = tf.Variable(tf.random.uniform([], -3, 3))\nwith tf.GradientTape() as tape:\n    y = x ** 2 + 3 * x\nprint(\"x =\", x.numpy(), \" y =\", y.numpy())\nprint(\"dy/dx =\", tape.gradient(y, x).numpy())      # equals 2x + 3\n\n# 3. A tiny Keras model\nmodel = keras.Sequential([\n    layers.Dense(16, activation=\"relu\", input_shape=(4,)),\n    layers.Dense(8, activation=\"relu\"),\n    layers.Dense(3, activation=\"softmax\"),\n])\nmodel.summary()\nprint(model.predict(np.random.rand(1, 4)))\n", "e02": "import numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n\n# 1-2. Load the dataset\ndf = pd.read_csv(\"student_marks.csv\")\n\n# 3. First few rows, dataset information and missing values\nprint(df.head())\ndf.info()\nprint(df.isnull().sum())\n\n# 4. Independent variable (X) and dependent variable (y)\nX = df[[\"Hours_Studied\"]]\ny = df[\"Marks\"]\n\n# 5. Split into training and testing sets\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n\n# 6. Create and train the Linear Regression model\nmodel = LinearRegression()\nmodel.fit(X_train, y_train)\n\n# 7. Learned slope (coefficient) and intercept\nprint(\"Slope (coefficient):\", model.coef_[0])\nprint(\"Intercept          :\", model.intercept_)\n\n# 8. Predict marks for the test data\ny_pred = model.predict(X_test)\n\n# 9. Actual vs predicted marks\nresult = pd.DataFrame({\"Actual\": y_test, \"Predicted\": y_pred})\nprint(result)\n\n# 10. Evaluation metrics\nmae = mean_absolute_error(y_test, y_pred)\nmse = mean_squared_error(y_test, y_pred)\nrmse = np.sqrt(mse)\nr2 = r2_score(y_test, y_pred)\nprint(\"MAE :\", mae)\nprint(\"MSE :\", mse)\nprint(\"RMSE:\", rmse)\nprint(\"R2  :\", r2)\n\n# 11. Predict marks for a student who studies 7.5 hours\nhours = pd.DataFrame({\"Hours_Studied\": [7.5]})\nprint(\"Predicted marks for 7.5 hours:\", model.predict(hours)[0])\n\n# 12. Plot the data points and the regression line\nplt.scatter(X, y, color=\"blue\", label=\"Actual data\")\nplt.plot(X, model.predict(X), color=\"red\", label=\"Regression line\")\nplt.xlabel(\"Hours Studied\")\nplt.ylabel(\"Marks\")\nplt.title(\"Simple Linear Regression\")\nplt.legend()\nplt.show()\n", "e03a": "import numpy as np\n\ndef step(z):\n    return (z >= 0).astype(int)                # threshold activation\n\n# Pre-initialised (hand-chosen) weights and biases\nW1 = np.array([[1, 1],                         # column 1 -> h1 = OR(x1, x2)\n               [1, 1]])                        # column 2 -> h2 = AND(x1, x2)\nb1 = np.array([-0.5, -1.5])\nW2 = np.array([[1], [-1]])                     # out = h1 AND NOT h2  (= XOR)\nb2 = np.array([-0.5])\n\nX = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])\nh = step(X @ W1 + b1)                          # hidden layer\ny = step(h @ W2 + b2)                          # output layer\n\nprint(\"x1 x2 | h1 h2 | out\")\nfor x, hid, out in zip(X, h, y):\n    print(f\" {x[0]}  {x[1]} |  {hid[0]}  {hid[1]} |  {out[0]}\")\n", "e03b": "import numpy as np\n\nX = np.array([[0, 0], [0, 1], [1, 0], [1, 1]], dtype=float)\ny = np.array([[0], [1], [1], [0]], dtype=float)\n\ndef sigmoid(z):\n    return 1 / (1 + np.exp(-z))\n\n# Random initial weights: 2 inputs -> 4 hidden -> 1 output\nrng = np.random.default_rng()\nW1 = rng.normal(0, 1, (2, 4)); b1 = np.zeros((1, 4))\nW2 = rng.normal(0, 1, (4, 1)); b2 = np.zeros((1, 1))\nlr = 0.5\n\nfor epoch in range(10000):\n    # forward pass\n    h = sigmoid(X @ W1 + b1)\n    out = sigmoid(h @ W2 + b2)\n    loss = np.mean((y - out) ** 2)\n\n    # backward pass (chain rule)\n    d_out = (out - y) * out * (1 - out)        # error at the output\n    d_h = (d_out @ W2.T) * h * (1 - h)         # error sent back to the hidden layer\n\n    # gradient descent update\n    W2 -= lr * h.T @ d_out\n    b2 -= lr * d_out.sum(axis=0, keepdims=True)\n    W1 -= lr * X.T @ d_h\n    b1 -= lr * d_h.sum(axis=0, keepdims=True)\n\n    if epoch % 1000 == 0:\n        print(f\"epoch {epoch:5d}  loss = {loss:.6f}\")\n\nprint(\"x1 x2 | target | prediction\")\nfor xi, ti, pi in zip(X, y, out):\n    print(f\" {int(xi[0])}  {int(xi[1])} |   {int(ti[0])}    |  {pi[0]:.4f} -> {int(pi[0] > 0.5)}\")\n", "e03c": "import numpy as np\nfrom sklearn.neural_network import MLPClassifier\n\nX = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])\ny = np.array([0, 1, 1, 0])\n\n# 2 inputs -> 8 hidden neurons (tanh) -> 1 output\nmodel = MLPClassifier(hidden_layer_sizes=(8,), activation=\"tanh\",\n                      solver=\"lbfgs\", max_iter=1000, random_state=42)\nmodel.fit(X, y)\n\npred = model.predict(X)\nprint(\"x1 x2 | target | prediction\")\nfor x, t, p in zip(X, y, pred):\n    print(f\" {x[0]}  {x[1]} |   {t}    |   {p}\")\n\nprint(\"Accuracy     :\", model.score(X, y))\nprint(\"Probabilities:\\n\", model.predict_proba(X).round(3))\n", "e04": "import numpy as np\nimport pandas as pd\n\ndf = pd.read_csv(\"data.csv\")                   # your lab dataset\nprint(df.head())\nprint(df.isna().sum())                         # missing values per column\n\n# 1. Inconsistent values: make text uniform, remove impossible numbers\ndf[\"City\"] = df[\"City\"].str.strip().str.title()\ndf[\"Gender\"] = df[\"Gender\"].str.strip().str.lower().str[0].map({\"m\": \"Male\", \"f\": \"Female\"})\ndf.loc[(df[\"Age\"] < 0) | (df[\"Age\"] > 100), \"Age\"] = np.nan\n\n# 2. Missing values: fill with the median\ndf[\"Age\"] = df[\"Age\"].fillna(df[\"Age\"].median())\ndf[\"Salary\"] = df[\"Salary\"].fillna(df[\"Salary\"].median())\n\n# 3. Outliers: IQR rule, then clip (winsorise)\nq1, q3 = df[\"Salary\"].quantile([0.25, 0.75])\niqr = q3 - q1\nlow, high = q1 - 1.5 * iqr, q3 + 1.5 * iqr\nprint(\"Outliers:\", ((df[\"Salary\"] < low) | (df[\"Salary\"] > high)).sum())\ndf[\"Salary\"] = df[\"Salary\"].clip(low, high)\n\n# 4. Scaling\ndf[\"Salary_scaled\"] = (df[\"Salary\"] - df[\"Salary\"].mean()) / df[\"Salary\"].std()   # standardisation\ndf[\"Age_minmax\"] = (df[\"Age\"] - df[\"Age\"].min()) / (df[\"Age\"].max() - df[\"Age\"].min())  # 0 to 1\nprint(df.head())\n", "e05": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\nfrom tensorflow.keras.datasets import cifar10\n\n# 1. Load and prepare CIFAR-10\n(x_train, y_train), (x_test, y_test) = cifar10.load_data()\nx_train = x_train.astype(\"float32\") / 255.0            # scale pixels to 0-1\nx_test = x_test.astype(\"float32\") / 255.0\nx_train = x_train.reshape(-1, 32 * 32 * 3)             # flatten for Dense layers\nx_test = x_test.reshape(-1, 32 * 32 * 3)\n\n# 2. Feed-forward network with three hidden layers\nmodel = keras.Sequential([\n    layers.Dense(512, activation=\"relu\", input_shape=(3072,)),   # hidden layer 1\n    layers.Dense(256, activation=\"relu\"),                        # hidden layer 2\n    layers.Dense(128, activation=\"relu\"),                        # hidden layer 3\n    layers.Dense(10, activation=\"softmax\"),                      # 10 classes\n])\nmodel.compile(optimizer=\"adam\",\n              loss=\"sparse_categorical_crossentropy\",\n              metrics=[\"accuracy\"])\nmodel.summary()\n\n# 3. Train and evaluate\nhistory = model.fit(x_train, y_train, epochs=10, batch_size=128, validation_split=0.1)\ntest_loss, test_acc = model.evaluate(x_test, y_test)\nprint(\"Test accuracy:\", test_acc)\n\n# 4. Plot\nplt.plot(history.history[\"accuracy\"], label=\"train\")\nplt.plot(history.history[\"val_accuracy\"], label=\"validation\")\nplt.xlabel(\"epoch\"); plt.ylabel(\"accuracy\"); plt.legend(); plt.show()\n", "e06": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\nfrom tensorflow import keras\nfrom tensorflow.keras import layers, regularizers, initializers\n\nX, y = make_classification(n_samples=520, n_features=20, n_informative=8,\n                           n_classes=4, flip_y=0.05)\nX_tr, X_va, y_tr, y_va = train_test_split(X, y, train_size=120)\n\ndef build(init=\"glorot_uniform\", dropout=0.0, l2=0.0, opt=\"adam\"):\n    reg = regularizers.l2(l2) if l2 else None\n    model = keras.Sequential([\n        layers.Dense(64, activation=\"relu\", kernel_initializer=init,\n                     kernel_regularizer=reg, input_shape=(20,)),\n        layers.Dropout(dropout),\n        layers.Dense(64, activation=\"relu\", kernel_initializer=init, kernel_regularizer=reg),\n        layers.Dropout(dropout),\n        layers.Dense(64, activation=\"relu\", kernel_initializer=init, kernel_regularizer=reg),\n        layers.Dense(4, activation=\"softmax\"),\n    ])\n    model.compile(optimizer=opt, loss=\"sparse_categorical_crossentropy\", metrics=[\"accuracy\"])\n    return model\n\ndef train(model, epochs=40):\n    return model.fit(X_tr, y_tr, epochs=epochs, batch_size=32,\n                     validation_data=(X_va, y_va), verbose=0)\n\n# (a) Weight initialisation\ninits = {\"Zeros\": \"zeros\",\n         \"Random N(0,1)\": initializers.RandomNormal(stddev=1.0),\n         \"Xavier (Glorot)\": \"glorot_uniform\",\n         \"Kaiming (He)\": \"he_normal\"}\nfor name, init in inits.items():\n    h = train(build(init=init))\n    plt.plot(h.history[\"val_loss\"], label=name)\n    print(name, \"val_acc =\", h.history[\"val_accuracy\"][-1])\nplt.title(\"Validation loss by initialiser\"); plt.legend(); plt.show()\n\n# (b) Optimisers\noptimizers = {\"SGD\": keras.optimizers.SGD(0.01),\n              \"SGD + momentum\": keras.optimizers.SGD(0.01, momentum=0.9),\n              \"RMSprop\": keras.optimizers.RMSprop(0.003),\n              \"Adam\": keras.optimizers.Adam(0.003)}\nfor name, opt in optimizers.items():\n    h = train(build(init=\"he_normal\", opt=opt))\n    print(name, \"val_acc =\", h.history[\"val_accuracy\"][-1])\n\n# (c) Regularisation: compare the train / validation gap\nsettings = {\"None\": {}, \"L2\": dict(l2=0.01),\n            \"Dropout 0.4\": dict(dropout=0.4), \"L2 + Dropout\": dict(l2=0.005, dropout=0.3)}\nfor name, kw in settings.items():\n    h = train(build(init=\"he_normal\", **kw), epochs=60)\n    gap = h.history[\"accuracy\"][-1] - h.history[\"val_accuracy\"][-1]\n    print(name, \"train - val accuracy gap =\", round(gap, 3))\n", "e07": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\nfrom tensorflow.keras.datasets import mnist\n\n# 1. Load MNIST: 28x28 grey-scale digit images\n(x_train, y_train), (x_test, y_test) = mnist.load_data()\nx_train = x_train.astype(\"float32\")[..., np.newaxis] / 255.0     # (60000, 28, 28, 1)\nx_test = x_test.astype(\"float32\")[..., np.newaxis] / 255.0\n\n# 2. CNN: Conv -> Pool -> Conv -> Pool -> Flatten -> Dense\nmodel = keras.Sequential([\n    layers.Conv2D(32, (3, 3), activation=\"relu\", input_shape=(28, 28, 1)),\n    layers.MaxPooling2D((2, 2)),\n    layers.Conv2D(64, (3, 3), activation=\"relu\"),\n    layers.MaxPooling2D((2, 2)),\n    layers.Flatten(),\n    layers.Dropout(0.5),\n    layers.Dense(10, activation=\"softmax\"),\n])\nmodel.compile(optimizer=\"adam\",\n              loss=\"sparse_categorical_crossentropy\",\n              metrics=[\"accuracy\"])\nmodel.summary()\n\n# 3. Train and evaluate\nhistory = model.fit(x_train, y_train, epochs=5, batch_size=128, validation_split=0.1)\ntest_loss, test_acc = model.evaluate(x_test, y_test)\nprint(\"Test accuracy:\", test_acc)\n\n# 4. Predictions on a few test digits\npred = model.predict(x_test[:12]).argmax(axis=1)\nfor i in range(12):\n    plt.subplot(2, 6, i + 1)\n    plt.imshow(x_test[i].squeeze(), cmap=\"gray\"); plt.title(f\"pred {pred[i]}\"); plt.axis(\"off\")\nplt.show()\n", "e08": "import numpy as np\nimport tensorflow as tf\nimport matplotlib.pyplot as plt\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\nfrom tensorflow.keras.applications import VGG19\nfrom tensorflow.keras.datasets import mnist\n\n# 1. MNIST -> 32x32 RGB images (VGG19 needs 3 channels and at least 32x32)\n(x_train, y_train), (x_test, y_test) = mnist.load_data()\nfrom tensorflow.keras.applications.vgg19 import preprocess_input\ndef prepare(x):\n    x = tf.image.resize(x[..., np.newaxis], (32, 32))          # 28x28 -> 32x32\n    x = tf.image.grayscale_to_rgb(x).numpy()                   # 1 -> 3 channels\n    return preprocess_input(x)                                 # ImageNet preprocessing (0-255 input)\nx_train, y_train = prepare(x_train[:2000]), y_train[:2000]     # a small labelled set\nx_test, y_test = prepare(x_test[:1000]), y_test[:1000]\n\ndef head(base):\n    return keras.Sequential([base, layers.Flatten(),\n                             layers.Dense(128, activation=\"relu\"),\n                             layers.Dropout(0.3),\n                             layers.Dense(10, activation=\"softmax\")])\n\ndef compile_fit(model, lr, epochs):\n    model.compile(optimizer=keras.optimizers.Adam(lr),\n                  loss=\"sparse_categorical_crossentropy\", metrics=[\"accuracy\"])\n    return model.fit(x_train, y_train, epochs=epochs, batch_size=64,\n                     validation_data=(x_test, y_test), verbose=0)\n\n# 2. Baseline: same architecture with random weights (trained from scratch)\nscratch = head(VGG19(weights=None, include_top=False, input_shape=(32, 32, 3)))\nh_scratch = compile_fit(scratch, 1e-3, 10)\n\n# 3. Transfer learning, step 1: pre-trained ImageNet weights, base frozen\nbase = VGG19(weights=\"imagenet\", include_top=False, input_shape=(32, 32, 3))\nbase.trainable = False                                  # feature extraction\nmodel = head(base)\nh_frozen = compile_fit(model, 1e-3, 10)\n\n# 4. Step 2: fine-tune the last convolution block with a small learning rate\nbase.trainable = True\nfor layer in base.layers[:-4]:\n    layer.trainable = False\nh_tuned = compile_fit(model, 1e-5, 5)\n\n# 5. Compare validation accuracy\nplt.plot(h_scratch.history[\"val_accuracy\"], label=\"from scratch\")\nplt.plot(h_frozen.history[\"val_accuracy\"], label=\"VGG19 frozen\")\nplt.plot(range(10, 15), h_tuned.history[\"val_accuracy\"], label=\"fine-tuned\")\nplt.xlabel(\"epoch\"); plt.ylabel(\"val accuracy\"); plt.legend(); plt.show()\n", "e09": "import numpy as np\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\nfrom tensorflow.keras.datasets import imdb\nfrom tensorflow.keras.preprocessing.sequence import pad_sequences\n\n# 1. IMDB reviews, already converted to word indices\n(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=10000)\nx_train = pad_sequences(x_train, maxlen=200)        # every review = 200 word indices\nx_test = pad_sequences(x_test, maxlen=200)\n\n# 2. Simple RNN for review classification\nmodel = keras.Sequential([\n    layers.Embedding(10000, 32),                     # word index -> 32-number vector\n    layers.SimpleRNN(32),                            # reads the review one word at a time\n    layers.Dense(1, activation=\"sigmoid\"),           # probability of \"positive\"\n])\nmodel.compile(optimizer=\"adam\", loss=\"binary_crossentropy\", metrics=[\"accuracy\"])\nmodel.build(input_shape=(None, 200))\nmodel.summary()\n\n# 3. Train and evaluate\nhistory = model.fit(x_train, y_train, epochs=5, batch_size=64, validation_split=0.2)\ntest_loss, test_acc = model.evaluate(x_test, y_test)\nprint(\"Test accuracy:\", test_acc)\n\n# 4. Predict a few unseen reviews\nprobs = model.predict(x_test[:5]).ravel()\nfor p, label in zip(probs, y_test[:5]):\n    print(f\"P(positive) = {p:.3f}  ->  {'positive' if p > 0.5 else 'negative'}   (true: {label})\")\n", "e10": "import matplotlib.pyplot as plt\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\nfrom tensorflow.keras.datasets import imdb\nfrom tensorflow.keras.preprocessing.sequence import pad_sequences\n\n(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=10000)\nx_train = pad_sequences(x_train, maxlen=200)\nx_test = pad_sequences(x_test, maxlen=200)\n\ndef build(cell):\n    model = keras.Sequential([\n        layers.Embedding(10000, 32),\n        cell(32),                                    # only this layer changes\n        layers.Dense(1, activation=\"sigmoid\"),\n    ])\n    model.compile(optimizer=\"adam\", loss=\"binary_crossentropy\", metrics=[\"accuracy\"])\n    model.build(input_shape=(None, 200))\n    return model\n\nresults = {}\nfor name, cell in [(\"SimpleRNN\", layers.SimpleRNN), (\"LSTM\", layers.LSTM), (\"GRU\", layers.GRU)]:\n    model = build(cell)\n    history = model.fit(x_train, y_train, epochs=5, batch_size=64,\n                        validation_split=0.2, verbose=0)\n    results[name] = history.history\n    print(f\"{name:10s} params = {model.count_params():,}   \"\n          f\"final val_accuracy = {history.history['val_accuracy'][-1]:.3f}\")\n\nfor name, h in results.items():\n    plt.plot(h[\"val_accuracy\"], label=name)\nplt.xlabel(\"epoch\"); plt.ylabel(\"validation accuracy\"); plt.legend(); plt.show()\n", "e11": "import numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom sklearn.preprocessing import MinMaxScaler\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\n\n# 1. NIFTY-50 daily data (columns: Date, Open, High, Low, Close, ...)\ndf = pd.read_csv(\"NIFTY50.csv\", parse_dates=[\"Date\"]).sort_values(\"Date\")\nclose = df[\"Close\"].values.reshape(-1, 1)\n\n# 2. Train / test split, then scale with the TRAIN range only\nsplit = int(len(close) * 0.8)\nscaler = MinMaxScaler()\ntrain_s = scaler.fit_transform(close[:split])\ntest_s = scaler.transform(close[split:])\n\n# 3. Sliding windows: the last 60 days predict the next day\nLOOK_BACK = 60\ndef make_windows(data):\n    X, y = [], []\n    for i in range(LOOK_BACK, len(data)):\n        X.append(data[i - LOOK_BACK:i, 0])\n        y.append(data[i, 0])\n    return np.array(X)[..., np.newaxis], np.array(y)\n\nX_train, y_train = make_windows(train_s)\nX_test, y_test = make_windows(np.concatenate([train_s[-LOOK_BACK:], test_s]))\n\n# 4. LSTM forecaster\nmodel = keras.Sequential([\n    layers.LSTM(50, input_shape=(LOOK_BACK, 1)),\n    layers.Dense(1),\n])\nmodel.compile(optimizer=\"adam\", loss=\"mse\")\nmodel.fit(X_train, y_train, epochs=40, batch_size=16, validation_split=0.1)\n\n# 5. Predict, undo the scaling, measure the error\npred = scaler.inverse_transform(model.predict(X_test))\nactual = scaler.inverse_transform(y_test.reshape(-1, 1))\nrmse = np.sqrt(np.mean((pred - actual) ** 2))\nnaive = np.sqrt(np.mean((actual[1:] - actual[:-1]) ** 2))       # \"tomorrow = today\"\nprint(f\"LSTM RMSE: {rmse:.1f}    naive baseline RMSE: {naive:.1f}\")\n\nplt.plot(actual, label=\"actual\"); plt.plot(pred, label=\"LSTM prediction\")\nplt.legend(); plt.title(\"NIFTY-50 Close: test period\"); plt.show()\n"};
+window.CODE = {"e01": "# Step 1: Import the packages\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport tensorflow as tf\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\n\n# Step 2: Check the TensorFlow version\nprint(\"TensorFlow version:\", tf.__version__)\n\n# Step 3: NumPy arrays - element-wise sum and dot product\na = np.array([1, 2, 3])\nb = np.array([4, 5, 6])\nprint(\"a + b       :\", a + b)\nprint(\"Dot product :\", np.dot(a, b))\n\n# Step 4: Pandas DataFrame and the mean of a column\ndata = {\"Name\": [\"Asha\", \"Ravi\", \"Meena\", \"John\"],\n        \"Marks\": [85, 72, 90, 64]}\ndf = pd.DataFrame(data)\nprint(df)\nprint(\"Mean of Marks:\", df[\"Marks\"].mean())\n\n# Step 5: TensorFlow tensors and matrix multiplication\nt1 = tf.constant([[1, 2], [3, 4]])\nt2 = tf.constant([[5, 6], [7, 8]])\nprint(\"tf.matmul(t1, t2):\")\nprint(tf.matmul(t1, t2).numpy())\n\n# Step 6: A small Keras Sequential model\nmodel = keras.Sequential([\n    keras.Input(shape=(3,)),\n    layers.Dense(4, activation=\"relu\"),\n    layers.Dense(1, activation=\"sigmoid\"),\n])\nmodel.summary()\n\n# Step 7: Plot sin(x) using Matplotlib\nx = np.linspace(0, 2 * np.pi, 100)\nplt.plot(x, np.sin(x))\nplt.title(\"sin(x)\")\nplt.xlabel(\"x\")\nplt.ylabel(\"sin(x)\")\nplt.show()\n", "e02": "# Step 1: Import the libraries\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n\n# Step 2: Load the dataset\ndf = pd.read_csv(\"student_marks.csv\")\n\n# Step 3: First five rows, dataset information and missing values\nprint(df.head())\ndf.info()\nprint(df.isnull().sum())\n\n# Step 4: Independent variable (X) and dependent variable (y)\nX = df[[\"Hours_Studied\"]]\ny = df[\"Marks\"]\n\n# Step 5: Split into training and testing sets\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n\n# Step 6: Create and train the Linear Regression model\nmodel = LinearRegression()\nmodel.fit(X_train, y_train)\n\n# Step 7: Learned slope (coefficient) and intercept\nprint(\"Slope (m)    :\", model.coef_[0])\nprint(\"Intercept (c):\", model.intercept_)\n\n# Step 8: Predict the test data and show actual vs predicted\ny_pred = model.predict(X_test)\nresult = pd.DataFrame({\"Actual\": y_test, \"Predicted\": y_pred})\nprint(result)\n\n# Step 9: MAE, MSE, RMSE and R2 score\nmae = mean_absolute_error(y_test, y_pred)\nmse = mean_squared_error(y_test, y_pred)\nrmse = np.sqrt(mse)\nr2 = r2_score(y_test, y_pred)\nprint(\"MAE :\", mae)\nprint(\"MSE :\", mse)\nprint(\"RMSE:\", rmse)\nprint(\"R2  :\", r2)\n\n# Step 10: Predict the marks for 7.5 hours of study\nhours = pd.DataFrame({\"Hours_Studied\": [7.5]})\nprint(\"Predicted marks for 7.5 hours:\", model.predict(hours)[0])\n\n# Step 11: Plot the data points and the regression line\nplt.scatter(X, y, color=\"blue\", label=\"Actual data\")\nplt.plot(X, model.predict(X), color=\"red\", label=\"Regression line\")\nplt.xlabel(\"Hours Studied\")\nplt.ylabel(\"Marks\")\nplt.title(\"Simple Linear Regression\")\nplt.legend()\nplt.show()\n", "e03a": "# Step 1: Import NumPy and define the sigmoid function\nimport numpy as np\n\ndef sigmoid(z):\n    return 1 / (1 + np.exp(-z))\n\n# Step 2: The four XOR inputs\nX = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])\n\n# Step 3: Pre-initialized weights and biases\nW1 = np.array([[20, -20],\n               [20, -20]])\nb1 = np.array([-10, 30])\nW2 = np.array([[20],\n               [20]])\nb2 = np.array([-30])\n\n# Step 4: Hidden layer (h1 acts as OR, h2 acts as NAND)\nh = sigmoid(np.dot(X, W1) + b1)\n\n# Step 5: Output layer (acts as AND of h1 and h2)\ny_hat = sigmoid(np.dot(h, W2) + b2)\n\n# Step 6: Print 1 if output >= 0.5, otherwise 0\nprint(\"Input    Output\")\nfor i in range(4):\n    print(X[i], \"  \", 1 if y_hat[i][0] >= 0.5 else 0)\n", "e03b": "# Step 1: Import NumPy, define sigmoid and its derivative\nimport numpy as np\n\ndef sigmoid(z):\n    return 1 / (1 + np.exp(-z))\n\ndef sigmoid_derivative(a):\n    return a * (1 - a)\n\n# Step 2: Inputs and target outputs\nX = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])\ny = np.array([[0], [1], [1], [0]])\n\n# Step 3: Random weights, zero biases, learning rate and epochs\nnp.random.seed(42)\nW1 = np.random.uniform(-1, 1, (2, 4))    # 2 inputs -> 4 hidden neurons\nb1 = np.zeros((1, 4))\nW2 = np.random.uniform(-1, 1, (4, 1))    # 4 hidden neurons -> 1 output\nb2 = np.zeros((1, 1))\nlr = 0.5\nepochs = 20000\n\n# Step 4: Train with backpropagation\nfor epoch in range(epochs):\n    # (a) Forward pass\n    h = sigmoid(np.dot(X, W1) + b1)\n    y_hat = sigmoid(np.dot(h, W2) + b2)\n\n    # (b) Error and loss (MSE)\n    error = y - y_hat\n    loss = np.mean(error ** 2)\n\n    # (c) Output delta\n    delta_o = error * sigmoid_derivative(y_hat)\n\n    # (d) Hidden delta (error passed back)\n    delta_h = np.dot(delta_o, W2.T) * sigmoid_derivative(h)\n\n    # (e) Update weights and biases\n    W2 += lr * np.dot(h.T, delta_o)\n    b2 += lr * np.sum(delta_o, axis=0, keepdims=True)\n    W1 += lr * np.dot(X.T, delta_h)\n    b1 += lr * np.sum(delta_h, axis=0, keepdims=True)\n\n    # Step 5: Print the loss every 4000 epochs\n    if epoch % 4000 == 0:\n        print(\"Epoch\", epoch, \" Loss:\", round(loss, 6))\n\n# Step 6: Final predictions\nprint(\"\\nInput    Predicted   Output\")\nfor i in range(4):\n    print(X[i], \"  \", round(y_hat[i][0], 4), \"   \", 1 if y_hat[i][0] >= 0.5 else 0)\n", "e03c": "# Step 1: Import NumPy and Keras\nimport numpy as np\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\n\n# Step 2: Inputs and target outputs\nX = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])\ny = np.array([0, 1, 1, 0])\n\n# Step 3: Build the Sequential model\nmodel = keras.Sequential([\n    keras.Input(shape=(2,)),\n    layers.Dense(8, activation=\"relu\"),\n    layers.Dense(1, activation=\"sigmoid\"),\n])\n\n# Step 4: Compile the model\nmodel.compile(optimizer=keras.optimizers.Adam(learning_rate=0.05),\n              loss=\"binary_crossentropy\",\n              metrics=[\"accuracy\"])\n\n# Step 5: Train the model for 300 epochs\nmodel.fit(X, y, epochs=300, verbose=0)\n\n# Step 6: Evaluate, predict and print the results\nloss, accuracy = model.evaluate(X, y, verbose=0)\nprint(\"Accuracy:\", accuracy)\n\npred = model.predict(X, verbose=0)\nprint(\"\\nInput    Output\")\nfor i in range(4):\n    print(X[i], \"  \", 1 if pred[i][0] >= 0.5 else 0)\n", "e04": "# Step 1: Import the libraries\nimport pandas as pd\nimport seaborn as sns\nimport matplotlib.pyplot as plt\n\n# Step 2: Load the dataset and show the first five rows\ndf = pd.read_csv(\"titanic.csv\")\nprint(df.head())\n\n# Step 3: Count the missing values in each column\nprint(\"\\nMissing values:\")\nprint(df.isnull().sum())\n\n# Step 4: Fill Age with the median and Embarked with the mode\ndf[\"Age\"] = df[\"Age\"].fillna(df[\"Age\"].median())\ndf[\"Embarked\"] = df[\"Embarked\"].fillna(df[\"Embarked\"].mode()[0])\nprint(\"\\nMissing values after filling:\")\nprint(df[[\"Age\", \"Embarked\"]].isnull().sum())\n\n# Step 5: Make the Sex column consistent\ndf[\"Sex\"] = df[\"Sex\"].str.lower().str.strip()\nprint(\"\\nUnique values in Sex:\", df[\"Sex\"].unique())\n\n# Step 6: Box plot of Fare to see the outliers\nsns.boxplot(x=df[\"Fare\"])\nplt.title(\"Fare\")\nplt.show()\n\n# Step 7: Q1, Q3 and IQR\nQ1 = df[\"Fare\"].quantile(0.25)\nQ3 = df[\"Fare\"].quantile(0.75)\nIQR = Q3 - Q1\n\n# Step 8: Lower and upper limits\nlower = Q1 - 1.5 * IQR\nupper = Q3 + 1.5 * IQR\nprint(\"\\nQ1 =\", Q1, \" Q3 =\", Q3, \" IQR =\", IQR)\nprint(\"Lower limit =\", lower, \" Upper limit =\", upper)\n\n# Step 9: Find the outlier rows\noutliers = df[(df[\"Fare\"] < lower) | (df[\"Fare\"] > upper)]\nprint(\"Number of outliers:\", len(outliers))\n\n# Step 10: Remove the outliers and compare the size\ndf_clean = df[(df[\"Fare\"] >= lower) & (df[\"Fare\"] <= upper)]\nprint(\"Rows before:\", len(df))\nprint(\"Rows after :\", len(df_clean))\n", "e05": "# Step 1: Import the modules\nimport matplotlib.pyplot as plt\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\nfrom tensorflow.keras.datasets import cifar10\nfrom tensorflow.keras.utils import to_categorical\n\n# Step 2: Load CIFAR-10 (50,000 train and 10,000 test images, 32x32x3)\n(x_train, y_train), (x_test, y_test) = cifar10.load_data()\nprint(\"Train:\", x_train.shape, \" Test:\", x_test.shape)\n\n# Step 3: Normalize the pixel values to [0, 1]\nx_train = x_train / 255.0\nx_test = x_test / 255.0\n\n# Step 4: Convert the labels to one-hot vectors\ny_train = to_categorical(y_train, 10)\ny_test = to_categorical(y_test, 10)\n\n# Step 5: Build the network with three hidden layers\nmodel = keras.Sequential([\n    keras.Input(shape=(32, 32, 3)),\n    layers.Flatten(),\n    layers.Dense(512, activation=\"relu\"),\n    layers.Dense(256, activation=\"relu\"),\n    layers.Dense(128, activation=\"relu\"),\n    layers.Dense(10, activation=\"softmax\"),\n])\nmodel.summary()\n\n# Step 6: Compile the model\nmodel.compile(optimizer=\"adam\",\n              loss=\"categorical_crossentropy\",\n              metrics=[\"accuracy\"])\n\n# Step 7: Train for 10 epochs, batch size 64, 10% validation\nhistory = model.fit(x_train, y_train, epochs=10, batch_size=64, validation_split=0.1)\n\n# Step 8: Evaluate on the test data\ntest_loss, test_acc = model.evaluate(x_test, y_test)\nprint(\"Test accuracy:\", test_acc)\n\n# Step 9: Plot the accuracy and loss curves\nplt.plot(history.history[\"accuracy\"], label=\"Train accuracy\")\nplt.plot(history.history[\"val_accuracy\"], label=\"Validation accuracy\")\nplt.xlabel(\"Epoch\")\nplt.ylabel(\"Accuracy\")\nplt.legend()\nplt.show()\n\nplt.plot(history.history[\"loss\"], label=\"Train loss\")\nplt.plot(history.history[\"val_loss\"], label=\"Validation loss\")\nplt.xlabel(\"Epoch\")\nplt.ylabel(\"Loss\")\nplt.legend()\nplt.show()\n", "e06": "# Step 1: Import the modules\nimport matplotlib.pyplot as plt\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\nfrom tensorflow.keras.datasets import cifar10\nfrom tensorflow.keras.utils import to_categorical\nfrom tensorflow.keras.regularizers import l2\n\n# Step 2: Load CIFAR-10, normalize and one-hot encode\n(x_train, y_train), (x_test, y_test) = cifar10.load_data()\nx_train = x_train / 255.0\nx_test = x_test / 255.0\ny_train = to_categorical(y_train, 10)\ny_test = to_categorical(y_test, 10)\n\n# Step 3: Function that builds a network with three hidden layers\ndef build_model(init, dropout=0.0, reg=None, optimizer=\"adam\"):\n    model = keras.Sequential([\n        keras.Input(shape=(32, 32, 3)),\n        layers.Flatten(),\n        layers.Dense(512, activation=\"relu\", kernel_initializer=init, kernel_regularizer=reg),\n        layers.Dropout(dropout),\n        layers.Dense(256, activation=\"relu\", kernel_initializer=init, kernel_regularizer=reg),\n        layers.Dropout(dropout),\n        layers.Dense(128, activation=\"relu\", kernel_initializer=init, kernel_regularizer=reg),\n        layers.Dense(10, activation=\"softmax\"),\n    ])\n    model.compile(optimizer=optimizer, loss=\"categorical_crossentropy\", metrics=[\"accuracy\"])\n    return model\n\n# Step 4: Build, train and evaluate the four models\nmodels = {\n    \"Xavier\": build_model(\"glorot_uniform\"),\n    \"Kaiming\": build_model(\"he_normal\"),\n    \"Kaiming + Dropout\": build_model(\"he_normal\", dropout=0.3),\n    \"Kaiming + Dropout + L2\": build_model(\"he_normal\", dropout=0.3, reg=l2(0.001)),\n}\nhistories = {}\nresults = {}\nfor name, model in models.items():\n    print(\"Training:\", name)\n    histories[name] = model.fit(x_train, y_train, epochs=10, batch_size=64,\n                                validation_split=0.1, verbose=0)\n    results[name] = model.evaluate(x_test, y_test, verbose=0)[1]\n\n# Step 5: Kaiming model with SGD, RMSprop and Adam\nfor opt in [\"sgd\", \"rmsprop\", \"adam\"]:\n    print(\"Training: Kaiming +\", opt)\n    model = build_model(\"he_normal\", optimizer=opt)\n    model.fit(x_train, y_train, epochs=10, batch_size=64, validation_split=0.1, verbose=0)\n    results[\"Kaiming + \" + opt.upper()] = model.evaluate(x_test, y_test, verbose=0)[1]\n\n# Step 6: Test accuracy of every model\nprint()\nfor name, acc in results.items():\n    print(f\"{name:25s} test accuracy = {acc:.4f}\")\n\n# Step 7: Validation accuracy curves and bar chart of test accuracies\nfor name, h in histories.items():\n    plt.plot(h.history[\"val_accuracy\"], label=name)\nplt.xlabel(\"Epoch\")\nplt.ylabel(\"Validation accuracy\")\nplt.legend()\nplt.show()\n\nplt.bar(list(results.keys()), list(results.values()))\nplt.xticks(rotation=45, ha=\"right\")\nplt.ylabel(\"Test accuracy\")\nplt.tight_layout()\nplt.show()\n\n# Step 8: Analysis\nprint(\"Kaiming suits ReLU layers better than Xavier.\")\nprint(\"Dropout and L2 reduce overfitting (smaller train/validation gap).\")\nprint(\"Adam and RMSprop usually learn faster than plain SGD.\")\n", "e07": "# Step 1: Import the modules\nimport matplotlib.pyplot as plt\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\nfrom tensorflow.keras.datasets import mnist\nfrom tensorflow.keras.utils import to_categorical\n\n# Step 2: Load MNIST (60,000 train and 10,000 test images, 28x28)\n(x_train, y_train), (x_test, y_test) = mnist.load_data()\nprint(\"Train:\", x_train.shape, \" Test:\", x_test.shape)\n\n# Step 3: Reshape to (28, 28, 1) and normalize to [0, 1]\nx_train = x_train.reshape(-1, 28, 28, 1) / 255.0\nx_test = x_test.reshape(-1, 28, 28, 1) / 255.0\n\n# Step 4: Convert the labels to one-hot vectors\ny_train_cat = to_categorical(y_train, 10)\ny_test_cat = to_categorical(y_test, 10)\n\n# Step 5: Build the CNN\nmodel = keras.Sequential([\n    keras.Input(shape=(28, 28, 1)),\n    layers.Conv2D(32, (3, 3), activation=\"relu\"),\n    layers.MaxPooling2D((2, 2)),\n    layers.Conv2D(64, (3, 3), activation=\"relu\"),\n    layers.MaxPooling2D((2, 2)),\n    layers.Flatten(),\n    layers.Dense(128, activation=\"relu\"),\n    layers.Dense(10, activation=\"softmax\"),\n])\nmodel.summary()\n\n# Step 6: Compile the model\nmodel.compile(optimizer=\"adam\",\n              loss=\"categorical_crossentropy\",\n              metrics=[\"accuracy\"])\n\n# Step 7: Train for 5 epochs with 10% validation\nhistory = model.fit(x_train, y_train_cat, epochs=5, validation_split=0.1)\n\n# Step 8: Evaluate on the test data\ntest_loss, test_acc = model.evaluate(x_test, y_test_cat)\nprint(\"Test accuracy:\", test_acc)\nprint(\"Test loss    :\", test_loss)\n\n# Step 9: Accuracy curves and one test image with its prediction\nplt.plot(history.history[\"accuracy\"], label=\"Train accuracy\")\nplt.plot(history.history[\"val_accuracy\"], label=\"Validation accuracy\")\nplt.xlabel(\"Epoch\")\nplt.ylabel(\"Accuracy\")\nplt.legend()\nplt.show()\n\npred = model.predict(x_test[:1]).argmax()\nplt.imshow(x_test[0].reshape(28, 28), cmap=\"gray\")\nplt.title(f\"Actual: {y_test[0]}   Predicted: {pred}\")\nplt.axis(\"off\")\nplt.show()\n", "e08": "# Step 1: Import the modules\nimport tensorflow as tf\nimport matplotlib.pyplot as plt\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\nfrom tensorflow.keras.applications import VGG19\nfrom tensorflow.keras.applications.vgg19 import preprocess_input\nfrom tensorflow.keras.datasets import mnist\nfrom tensorflow.keras.utils import to_categorical\n\n# Step 2: Load MNIST and take a smaller subset for faster training\n(x_train, y_train), (x_test, y_test) = mnist.load_data()\nx_train, y_train = x_train[:5000], y_train[:5000]\nx_test, y_test = x_test[:1000], y_test[:1000]\n\n# Step 3 and 4: Resize to 48x48, grayscale -> RGB, VGG19 preprocessing\ndef prepare(images):\n    images = tf.expand_dims(images, -1)            # (n, 28, 28, 1)\n    images = tf.image.resize(images, (48, 48))     # (n, 48, 48, 1)\n    images = tf.image.grayscale_to_rgb(images)     # (n, 48, 48, 3)\n    return preprocess_input(images.numpy())\n\nx_train = prepare(x_train)\nx_test = prepare(x_test)\n\n# Step 5: Convert the labels to one-hot vectors\ny_train = to_categorical(y_train, 10)\ny_test = to_categorical(y_test, 10)\n\n# Step 6: Load VGG19 with ImageNet weights, without the top layers\nbase = VGG19(weights=\"imagenet\", include_top=False, input_shape=(48, 48, 3))\n\n# Step 7: Freeze the VGG19 layers\nbase.trainable = False\n\n# Step 8: Add new layers on top\nmodel = keras.Sequential([\n    base,\n    layers.Flatten(),\n    layers.Dense(256, activation=\"relu\"),\n    layers.Dropout(0.5),\n    layers.Dense(10, activation=\"softmax\"),\n])\nmodel.summary()\n\n# Step 9: Compile the model\nmodel.compile(optimizer=\"adam\",\n              loss=\"categorical_crossentropy\",\n              metrics=[\"accuracy\"])\n\n# Step 10: Train for 5 epochs with validation data\nhistory = model.fit(x_train, y_train, epochs=5, batch_size=64,\n                    validation_data=(x_test, y_test))\n\n# Step 11: Evaluate and plot the accuracy and loss curves\ntest_loss, test_acc = model.evaluate(x_test, y_test)\nprint(\"Test accuracy:\", test_acc)\n\nplt.plot(history.history[\"accuracy\"], label=\"Train accuracy\")\nplt.plot(history.history[\"val_accuracy\"], label=\"Validation accuracy\")\nplt.xlabel(\"Epoch\")\nplt.ylabel(\"Accuracy\")\nplt.legend()\nplt.show()\n\nplt.plot(history.history[\"loss\"], label=\"Train loss\")\nplt.plot(history.history[\"val_loss\"], label=\"Validation loss\")\nplt.xlabel(\"Epoch\")\nplt.ylabel(\"Loss\")\nplt.legend()\nplt.show()\n", "e09": "# Step 1: Import the modules\nimport matplotlib.pyplot as plt\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\nfrom tensorflow.keras.datasets import imdb\nfrom tensorflow.keras.preprocessing.sequence import pad_sequences\n\n# Step 2: Vocabulary size and maximum review length\nvocab_size = 10000\nmax_len = 200\n\n# Step 3: Load the IMDB dataset (25,000 train and 25,000 test reviews)\n(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=vocab_size)\nprint(\"Train reviews:\", len(x_train), \" Test reviews:\", len(x_test))\n\n# Step 4: Pad every review to length 200\nx_train = pad_sequences(x_train, maxlen=max_len)\nx_test = pad_sequences(x_test, maxlen=max_len)\n\n# Step 5: Build the model\nmodel = keras.Sequential([\n    keras.Input(shape=(max_len,)),\n    layers.Embedding(vocab_size, 32),\n    layers.SimpleRNN(32),\n    layers.Dense(1, activation=\"sigmoid\"),\n])\nmodel.summary()\n\n# Step 6: Compile the model\nmodel.compile(optimizer=\"adam\",\n              loss=\"binary_crossentropy\",\n              metrics=[\"accuracy\"])\n\n# Step 7: Train for 5 epochs with 20% validation\nhistory = model.fit(x_train, y_train, epochs=5, batch_size=64, validation_split=0.2)\n\n# Step 8: Evaluate and predict the sentiment of a sample review\ntest_loss, test_acc = model.evaluate(x_test, y_test)\nprint(\"Test accuracy:\", test_acc)\n\nprob = model.predict(x_test[:1])[0][0]\nprint(\"Sample review: probability of positive =\", round(float(prob), 3))\nprint(\"Predicted:\", \"Positive\" if prob >= 0.5 else \"Negative\")\nprint(\"Actual   :\", \"Positive\" if y_test[0] == 1 else \"Negative\")\n\n# Step 9: Plot the accuracy curves\nplt.plot(history.history[\"accuracy\"], label=\"Train accuracy\")\nplt.plot(history.history[\"val_accuracy\"], label=\"Validation accuracy\")\nplt.xlabel(\"Epoch\")\nplt.ylabel(\"Accuracy\")\nplt.legend()\nplt.show()\n", "e10": "# Step 1: Import the modules\nimport time\nimport matplotlib.pyplot as plt\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\nfrom tensorflow.keras.datasets import imdb\nfrom tensorflow.keras.preprocessing.sequence import pad_sequences\n\n# Step 2: Load IMDB (10000 words) and pad the reviews to length 200\n(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=10000)\nx_train = pad_sequences(x_train, maxlen=200)\nx_test = pad_sequences(x_test, maxlen=200)\n\n# Step 3: Function that builds and compiles the model\ndef build_model(rnn_layer):\n    model = keras.Sequential([\n        keras.Input(shape=(200,)),\n        layers.Embedding(10000, 32),\n        rnn_layer,\n        layers.Dense(1, activation=\"sigmoid\"),\n    ])\n    model.compile(optimizer=\"adam\", loss=\"binary_crossentropy\", metrics=[\"accuracy\"])\n    return model\n\n# Step 4: Train SimpleRNN, LSTM and GRU\nrnn_layers = {\n    \"SimpleRNN\": layers.SimpleRNN(32),\n    \"LSTM\": layers.LSTM(32),\n    \"GRU\": layers.GRU(32),\n}\nhistories = {}\naccuracy = {}\ntrain_time = {}\nfor name, rnn_layer in rnn_layers.items():\n    print(\"Training\", name)\n    model = build_model(rnn_layer)                       # (a) build the model\n    start = time.time()                                  #     and note the start time\n    histories[name] = model.fit(x_train, y_train, epochs=3, batch_size=64,\n                                validation_split=0.2)    # (b) train for 3 epochs\n    train_time[name] = time.time() - start               # (c) training time\n    accuracy[name] = model.evaluate(x_test, y_test, verbose=0)[1]   # and test accuracy\n\n# Step 5: Accuracy and training time of all three models\nprint()\nfor name in rnn_layers:\n    print(f\"{name:10s} accuracy = {accuracy[name]:.4f}   time = {train_time[name]:.1f} s\")\n\n# Step 6: Validation accuracy curves and bar chart of test accuracies\nfor name, h in histories.items():\n    plt.plot(h.history[\"val_accuracy\"], label=name)\nplt.xlabel(\"Epoch\")\nplt.ylabel(\"Validation accuracy\")\nplt.legend()\nplt.show()\n\nplt.bar(list(accuracy.keys()), list(accuracy.values()))\nplt.ylabel(\"Test accuracy\")\nplt.show()\n\n# Step 7: Comparison\nprint(\"LSTM and GRU use gates, so they remember long reviews better than SimpleRNN.\")\nprint(\"GRU has fewer parameters than LSTM, so it trains faster.\")\n", "e11": "# Step 1: Import the modules\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport yfinance as yf\nfrom sklearn.preprocessing import MinMaxScaler\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\n\n# Step 2: Download NIFTY-50 (^NSEI) from 2015 to 2025 and select Close\ndata = yf.download(\"^NSEI\", start=\"2015-01-01\", end=\"2025-01-01\")\nclose = data[[\"Close\"]].values\n\n# Step 3: Plot the closing price\nplt.plot(data.index, close)\nplt.title(\"NIFTY-50 Closing Price\")\nplt.xlabel(\"Date\")\nplt.ylabel(\"Price\")\nplt.show()\n\n# Step 4: Scale the prices to [0, 1]\nscaler = MinMaxScaler()\nscaled = scaler.fit_transform(close)\n\n# Step 5: Previous 60 days -> next day\nX, y = [], []\nfor i in range(60, len(scaled)):\n    X.append(scaled[i - 60:i, 0])\n    y.append(scaled[i, 0])\nX, y = np.array(X), np.array(y)\nX = X.reshape(X.shape[0], 60, 1)\n\n# Step 6: 80% training, 20% testing in time order (no shuffling)\nsplit = int(len(X) * 0.8)\nX_train, X_test = X[:split], X[split:]\ny_train, y_test = y[:split], y[split:]\n\n# Step 7: Build the LSTM model\nmodel = keras.Sequential([\n    keras.Input(shape=(60, 1)),\n    layers.LSTM(50, return_sequences=True),\n    layers.Dropout(0.2),\n    layers.LSTM(50),\n    layers.Dropout(0.2),\n    layers.Dense(1),\n])\nmodel.summary()\n\n# Step 8: Compile the model\nmodel.compile(optimizer=\"adam\", loss=\"mean_squared_error\")\n\n# Step 9: Train for 20 epochs, batch size 32\nmodel.fit(X_train, y_train, epochs=20, batch_size=32, validation_data=(X_test, y_test))\n\n# Step 10: Predict and convert back to actual prices\npred = scaler.inverse_transform(model.predict(X_test))\nactual = scaler.inverse_transform(y_test.reshape(-1, 1))\n\n# Step 11: RMSE and plot actual vs predicted\nrmse = np.sqrt(np.mean((pred - actual) ** 2))\nprint(\"RMSE:\", rmse)\n\nplt.plot(actual, label=\"Actual price\")\nplt.plot(pred, label=\"Predicted price\")\nplt.title(\"NIFTY-50: Actual vs Predicted\")\nplt.xlabel(\"Day (test period)\")\nplt.ylabel(\"Price\")\nplt.legend()\nplt.show()\n\n# Step 12: Predict the next day's closing price\nlast_60 = scaled[-60:].reshape(1, 60, 1)\nnext_price = scaler.inverse_transform(model.predict(last_60))\nprint(\"Predicted next day closing price:\", next_price[0][0])\n"};
 </script>
 <script>
 /* =========================================================================
