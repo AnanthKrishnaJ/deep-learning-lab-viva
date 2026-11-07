@@ -14,6 +14,6 @@ A standalone HTML learning app for deep-learning experiments and viva MCQ practi
 Open `index.html` in a modern browser. No build step is required.
 
 ## Live demo
-https://dl-lab-viva-professional.vercel.app
+[https://dl-lab-viva-professional.vercel.app](https://deep-learning-lab-viva.vercel.app)
 
 Made by Ananth.
