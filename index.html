@@ -290,6 +290,45 @@ pre.code .l:hover::before { color: var(--pop); }
 @media (max-width: 900px) { .memo-flow { flex-direction: column; } .memo-flow > i { transform: rotate(90deg); } .mf { flex: none; } }
 @media (max-width: 560px) { .memo { padding: 18px; } }
 
+/* ---------- compare codes ---------- */
+.cmp { max-width: 1240px; margin-inline: auto; }
+.cmp-pairs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 10px; }
+.cmp-pair { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 18px; border: 1.5px solid var(--line-2); text-decoration: none; transition: transform .3s var(--spring), border-color .2s, background .2s; }
+.cmp-pair:hover { border-color: var(--ink); transform: translateY(-3px); }
+.cmp-pair b { font: 400 1.45rem/1 var(--font-display); letter-spacing: .02em; }
+.cmp-pair span { font-size: .82rem; line-height: 1.4; color: var(--muted); }
+.cmp-pair i { font: 600 .72rem var(--font-mono); font-style: normal; color: var(--pop); }
+.cmp-pair[aria-current="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.cmp-pair[aria-current="true"] span { color: var(--bg); opacity: .7; }
+.cmp-pick { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; }
+.cmp-pick select { width: 100%; padding: 12px 16px; border-radius: 999px; border: 1.5px solid var(--line-2); background: var(--surface); font: 600 .84rem var(--font-body); color: var(--ink); cursor: pointer; }
+.cmp-pick select:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.cmp-card { margin-top: 18px; }
+.cmp-scroll { overflow-x: auto; padding: 12px 12px 14px; }
+.cmp-diff { min-width: 760px; font: 400 12.5px/1.75 var(--font-mono); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--code-bg); }
+.cr { display: grid; grid-template-columns: 40px minmax(0, 1fr) 40px minmax(0, 1fr); }
+.cr .cn { text-align: right; padding-right: 10px; color: var(--code-gutter); font-size: 11px; user-select: none; }
+.cr .cn:nth-child(3) { border-left: 1px solid var(--line); }
+.cr code { font: inherit; color: var(--code-ink); white-space: pre-wrap; overflow-wrap: anywhere; padding-right: 12px; min-height: 1.75em; }
+.cr code.minus { background: var(--bad-soft); box-shadow: inset 3px 0 0 var(--bad); padding-left: 6px; }
+.cr code.plus { background: var(--good-soft); box-shadow: inset 3px 0 0 var(--good); padding-left: 6px; }
+.cr code.empty { background: repeating-linear-gradient(135deg, transparent 0 6px, var(--grid) 6px 7px); }
+.cr.headrow { background: var(--surface); border-bottom: 1px solid var(--line); padding: 10px 0; }
+.cr.headrow b { font: 400 1.1rem/1.1 var(--font-display); letter-spacing: .02em; padding-right: 10px; }
+.cr.fold { display: block; text-align: center; color: var(--muted); background: var(--surface-2); font-size: 11px; padding: 2px 0; border-block: 1px solid var(--line); }
+.cmp-note { color: var(--muted); font-size: .85rem; margin: -6px 0 12px; }
+.cmp-matrix-wrap { overflow-x: auto; }
+.cmp-matrix { border-collapse: separate; border-spacing: 3px; font: 500 .72rem var(--font-mono); }
+.cmp-matrix th { padding: 4px 6px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.cmp-matrix td { padding: 0; }
+.cmp-matrix td a { display: grid; place-items: center; width: 42px; height: 34px; border-radius: 9px; text-decoration: none; color: var(--ink); background: color-mix(in srgb, var(--pop) var(--s), var(--surface-2)); transition: transform .25s var(--spring); }
+.cmp-matrix td a:hover { transform: scale(1.15); outline: 2px solid var(--ink); }
+.cmp-matrix td a.hi { color: #fff; font-weight: 700; }
+.cmp-matrix td a.cur { outline: 2px solid var(--ink); outline-offset: 1px; }
+.cmp-matrix td.diag { text-align: center; color: var(--line-2); }
+.nav-compare .no { font-size: .9rem; }
+@media (max-width: 560px) { .cmp-pick { grid-template-columns: minmax(0, 1fr); } .cmp-pick .btn { justify-self: center; } }
+
 /* ---------- quiz ---------- */
 .quiz { max-width: 860px; margin-inline: auto; }
 .q-hero { position: relative; isolation: isolate; overflow: hidden; padding: clamp(24px, 3.4vw, 40px); border-radius: 28px; background: var(--dark); color: var(--on-dark); border: 1px solid var(--line); box-shadow: var(--shadow); animation: fadeUp .7s var(--ease) both; }
@@ -2033,6 +2072,7 @@ window.CODE = {"e01": "# 1. Import\nimport numpy as np\nimport pandas as pd\nimp
     check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     moon: '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>',
     sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>',
+    swap: '<svg viewBox="0 0 24 24"><path d="M4 8h15l-4-4M20 16H5l4 4"/></svg>',
     quiz: '<svg viewBox="0 0 24 24"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1 1-1.1 1.8"/><circle cx="12" cy="17" r=".6"/><circle cx="12" cy="12" r="9"/></svg>',
   };
 
@@ -2366,7 +2406,7 @@ window.CODE = {"e01": "# 1. Import\nimport numpy as np\nimport pandas as pd\nimp
       '<div class="grid">' +
       '<section class="card" aria-label="Code"><div class="card-bar"><div class="tabs" role="tablist">' +
       part.codes.map((c, i) => '<button class="tab" role="tab" data-tab="' + i + '" aria-selected="' + (i === (st.tab < part.codes.length ? st.tab : 0)) + '">' + esc(c.label) + "</button>").join("") +
-      '</div><div class="code-actions"><button class="btn" data-nocomm aria-pressed="false" title="Show the code without # comments">' + ICON.hash + ' <span>Hide comments</span></button><button class="btn" data-copy>' + ICON.copy + ' <span>Copy</span></button></div></div><div class="code-wrap"><pre class="code" tabindex="0"></pre></div><div class="live-note" data-codenote hidden></div></section>' +
+      '</div><div class="code-actions"><button class="btn" data-nocomm aria-pressed="false" title="Show the code without # comments">' + ICON.hash + ' <span>Hide comments</span></button><button class="btn" data-copy>' + ICON.copy + ' <span>Copy</span></button><a class="btn" href="#/compare/' + part.id + "/" + bestMatch(part.id) + '" title="Compare with the most similar program">' + ICON.swap + ' <span>Compare</span></a></div></div><div class="code-wrap"><pre class="code" tabindex="0"></pre></div><div class="live-note" data-codenote hidden></div></section>' +
       '<section class="card" aria-label="Live result"><div class="card-bar out-bar"><span class="status"><i></i><span data-status>Ready</span></span>' +
       '<div class="out-actions"><label class="seed"><input type="checkbox" data-lock> same data <b data-seed></b></label><button class="btn primary" data-run></button></div></div>' +
       '<div class="progress"><i></i></div><div class="stats"></div><div class="console" role="log" aria-live="off"></div>' +
@@ -2532,18 +2572,122 @@ window.CODE = {"e01": "# 1. Import\nimport numpy as np\nimport pandas as pd\nimp
   }
 
   /* ===================================================================
+     Compare codes: side-by-side line diff, similar pairs, similarity grid
+     =================================================================== */
+  const PROGS = EXP.flatMap((x) => x.parts.map((pt) => {
+    const multi = x.parts.length > 1, letter = multi ? pt.label.split("·")[0].trim() : "";
+    const tag = String(x.n).padStart(2, "0") + letter;
+    return { id: pt.id, file: pt.codes[0].file, tag, label: tag + " · " + (multi ? x.title + " " + letter + " (" + pt.label.split("·")[1].trim() + ")" : x.title) };
+  }));
+  const progOf = (id) => PROGS.find((q) => q.id === id) || null;
+  const codeLines = (pg, noC) => { const t = CODE[pg.file] || ""; return (noC ? stripComments(t) : t).replace(/\s+$/, "").split("\n"); };
+  function lcsOps(a, b) {
+    const n = a.length, m = b.length, L = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) L[i][j] = a[i] === b[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+    const ops = []; let i = 0, j = 0;
+    while (i < n && j < m) {
+      if (a[i] === b[j]) ops.push(["=", i++, j++]);
+      else if (L[i + 1][j] >= L[i][j + 1]) ops.push(["-", i++, -1]);
+      else ops.push(["+", -1, j++]);
+    }
+    while (i < n) ops.push(["-", i++, -1]);
+    while (j < m) ops.push(["+", -1, j++]);
+    return { ops, same: L[0][0] };
+  }
+  const SIM = {};
+  function similarity(aId, bId) {
+    const key = aId < bId ? aId + "|" + bId : bId + "|" + aId;
+    if (SIM[key] == null) {
+      const a = codeLines(progOf(aId), true).map((l) => l.trim()).filter(Boolean), b = codeLines(progOf(bId), true).map((l) => l.trim()).filter(Boolean);
+      SIM[key] = a.length + b.length ? (2 * lcsOps(a, b).same) / (a.length + b.length) : 0;
+    }
+    return SIM[key];
+  }
+  function bestMatch(id) {
+    let best = null, bv = -1;
+    for (const q of PROGS) if (q.id !== id) { const v = similarity(id, q.id); if (v > bv) { bv = v; best = q.id; } }
+    return best;
+  }
+  const PAIRS = [
+    ["e3b", "e3c", "Same XOR network: by hand vs with Keras"],
+    ["e3a", "e3b", "Fixed weights vs learned weights"],
+    ["e5", "e6", "Same CIFAR-10 network; 6 adds initializers, dropout, L2"],
+    ["e5", "e7", "Dense network vs CNN"],
+    ["e7", "e8", "Own CNN vs pre-trained VGG19"],
+    ["e9", "e10", "One SimpleRNN vs RNN / LSTM / GRU loop"],
+    ["e10", "e11", "LSTM for reviews vs LSTM for prices"],
+    ["e5", "e8", "Same Flatten → Dense head; 8 puts VGG19 underneath"],
+  ];
+  const hlLine = (line) => highlight(line).replace(/^<span class="l">/, "").replace(/<\/span>$/, "");
+
+  function renderCompare(aId, bId) {
+    const A = progOf(aId) || progOf("e3b"), B = progOf(bId) || progOf(aId ? bestMatch(A.id) : "e3c");
+    let noC = !!store.get("noComments", false), onlyDiff = !!store.get("cmpOnlyDiff", false);
+    const opts = (sel) => PROGS.map((q) => '<option value="' + q.id + '"' + (q.id === sel ? " selected" : "") + ">" + esc(q.label) + "</option>").join("");
+    const tagOf = (id) => progOf(id).tag;
+    main.innerHTML =
+      '<div class="view cmp">' +
+      '<div class="q-hero"><h2>Compare codes</h2><p>Put any two lab programs side by side. Lines that match stay plain; changed lines are coloured: red is only in the left program, green only in the right one.</p></div>' +
+      '<div class="card q-card"><h3>Similar programs</h3><div class="cmp-pairs">' +
+      PAIRS.map(([a, b, why]) => '<a class="cmp-pair" href="#/compare/' + a + "/" + b + '"' + ((a === A.id && b === B.id) || (a === B.id && b === A.id) ? ' aria-current="true"' : "") + "><b>" + tagOf(a) + " ⇄ " + tagOf(b) + "</b><span>" + esc(why) + "</span><i>" + Math.round(similarity(a, b) * 100) + "% same lines</i></a>").join("") +
+      "</div></div>" +
+      '<div class="card q-card"><h3>Pick two programs</h3><div class="cmp-pick"><select data-a aria-label="Left program">' + opts(A.id) + '</select><button class="btn" data-swap aria-label="Swap the two programs">' + ICON.swap + ' <span>Swap</span></button><select data-b aria-label="Right program">' + opts(B.id) + "</select></div>" +
+      '<div class="row"><label class="check"><input type="checkbox" data-onlydiff' + (onlyDiff ? " checked" : "") + '> Show only differences</label><label class="check"><input type="checkbox" data-noc' + (noC ? " checked" : "") + "> Hide comments</label></div></div>" +
+      '<div class="card cmp-card"><div class="stats cmp-stats"></div><div class="cmp-scroll"><div class="cmp-diff"></div></div></div>' +
+      '<div class="card q-card"><h3>All programs</h3><p class="cmp-note">Share of matching code lines between every pair (comments ignored). Click a cell to compare.</p><div class="cmp-matrix-wrap"><table class="cmp-matrix"><tr><th></th>' +
+      PROGS.map((q) => '<th title="' + esc(q.label) + '">' + q.tag + "</th>").join("") + "</tr>" +
+      PROGS.map((r) => '<tr><th title="' + esc(r.label) + '">' + r.tag + "</th>" + PROGS.map((c) => {
+        if (r.id === c.id) return '<td class="diag">—</td>';
+        const v = Math.round(similarity(r.id, c.id) * 100), cur = (r.id === A.id && c.id === B.id) ? " cur" : "";
+        return '<td><a class="' + (v >= 45 ? "hi" : "") + cur + '" style="--s:' + Math.min(100, v * 1.4).toFixed(0) + '%" href="#/compare/' + r.id + "/" + c.id + '" title="' + esc(r.tag + " vs " + c.tag + ": " + v + "% same lines") + '">' + v + "</a></td>";
+      }).join("") + "</tr>").join("") +
+      "</table></div></div></div>";
+
+    const draw = () => {
+      const la = codeLines(A, noC), lb = codeLines(B, noC), { ops } = lcsOps(la.map((l) => l.trim()), lb.map((l) => l.trim()));
+      const rows = [];
+      for (let k = 0; k < ops.length;) {
+        if (ops[k][0] === "=") { rows.push(["same", ops[k][1], ops[k][2]]); k++; continue; }
+        const dels = [], adds = [];
+        while (k < ops.length && ops[k][0] !== "=") { if (ops[k][0] === "-") dels.push(ops[k][1]); else adds.push(ops[k][2]); k++; }
+        for (let i = 0; i < Math.max(dels.length, adds.length); i++) rows.push(["chg", i < dels.length ? dels[i] : -1, i < adds.length ? adds[i] : -1]);
+      }
+      const cell = (lines, i, side) => (i < 0 ? '<span class="cn"></span><code class="empty"></code>' : '<span class="cn">' + (i + 1) + '</span><code class="' + side + '">' + hlLine(lines[i]) + "</code>");
+      let html = '<div class="cr headrow"><span></span><b>' + esc(A.label) + '</b><span></span><b>' + esc(B.label) + "</b></div>", run = 0;
+      const flush = () => { if (run) { html += '<div class="cr fold">··· ' + run + " matching line" + (run > 1 ? "s" : "") + " ···</div>"; run = 0; } };
+      for (const [t, a, b] of rows) {
+        if (t === "same" && onlyDiff) { run++; continue; }
+        flush();
+        html += '<div class="cr ' + t + '">' + cell(la, a, t === "same" ? "" : "minus") + cell(lb, b, t === "same" ? "" : "plus") + "</div>";
+      }
+      flush();
+      $(".cmp-diff").innerHTML = html;
+      const same = rows.filter((r) => r[0] === "same" && la[r[1]].trim()).length, onlyA = rows.filter((r) => r[0] === "chg" && r[1] >= 0 && la[r[1]].trim()).length, onlyB = rows.filter((r) => r[0] === "chg" && r[2] >= 0 && lb[r[2]].trim()).length;
+      $(".cmp-stats").innerHTML = '<div class="chip ok"><small>Similarity</small><b>' + Math.round(similarity(A.id, B.id) * 100) + '%</b></div><div class="chip"><small>Same lines</small><b>' + same + '</b></div><div class="chip"><small>Only in ' + A.tag + '</small><b>' + onlyA + '</b></div><div class="chip"><small>Only in ' + B.tag + "</small><b>" + onlyB + "</b></div>";
+    };
+    draw();
+    $("[data-a]").addEventListener("change", (e) => { location.hash = "#/compare/" + e.target.value + "/" + B.id; });
+    $("[data-b]").addEventListener("change", (e) => { location.hash = "#/compare/" + A.id + "/" + e.target.value; });
+    $("[data-swap]").addEventListener("click", () => { location.hash = "#/compare/" + B.id + "/" + A.id; });
+    $("[data-onlydiff]").addEventListener("change", (e) => { onlyDiff = e.target.checked; store.set("cmpOnlyDiff", onlyDiff); draw(); });
+    $("[data-noc]").addEventListener("change", (e) => { noC = e.target.checked; store.set("noComments", noC); draw(); });
+  }
+
+  /* ===================================================================
      Rail, theme, router
      =================================================================== */
   function buildRail() {
     rail.innerHTML = '<div class="rail-label">Lab experiments</div>' +
       EXP.map((x) => '<button class="nav" data-exp="' + x.n + '"><span class="no">' + x.n + '</span><span class="tt">' + esc(x.short) + '</span><span class="dot"></span></button>').join("") +
-      '<div class="rail-label">Viva</div><button class="nav nav-quiz" data-quiz><span class="no">?</span><span class="tt">Viva MCQs<small>' + BANK.length + " questions</small></span></button>";
+      '<div class="rail-label">Viva</div><button class="nav nav-quiz" data-quiz><span class="no">?</span><span class="tt">Viva MCQs<small>' + BANK.length + " questions</small></span></button>" +
+      '<button class="nav nav-compare" data-compare><span class="no">⇄</span><span class="tt">Compare codes</span></button>';
     $$(".nav[data-exp]", rail).forEach((b) => b.addEventListener("click", () => { location.hash = "#/exp/" + b.dataset.exp; }));
     $("[data-quiz]", rail).addEventListener("click", () => { location.hash = "#/quiz"; });
+    $("[data-compare]", rail).addEventListener("click", () => { location.hash = "#/compare"; });
   }
   function setCurrentNav(kind, n) {
     $$(".nav", rail).forEach((b) => b.removeAttribute("aria-current"));
-    const b = kind === "quiz" ? $("[data-quiz]", rail) : $('.nav[data-exp="' + n + '"]', rail);
+    const b = kind === "quiz" ? $("[data-quiz]", rail) : kind === "compare" ? $("[data-compare]", rail) : $('.nav[data-exp="' + n + '"]', rail);
     if (b) { b.setAttribute("aria-current", "page"); if (b.scrollIntoView) b.scrollIntoView({ block: "nearest", inline: "center" }); }
   }
   function route() {
@@ -2551,8 +2695,9 @@ window.CODE = {"e01": "# 1. Import\nimport numpy as np\nimport pandas as pd\nimp
     const [kind, a, b] = location.hash.replace(/^#\/?/, "").split("/");
     window.scrollTo(0, 0);
     if (kind === "quiz") { setCurrentNav("quiz"); renderQuizSetup(a ? +a : 0); }
+    else if (kind === "compare") { setCurrentNav("compare"); renderCompare(a, b); }
     else { const n = +a || 1; setCurrentNav("exp", n); renderExperiment(n, +b || 0); }
-    document.title = (kind === "quiz" ? "Viva MCQs" : "Experiment " + (+a || 1)) + " · Deep Learning Lab";
+    document.title = (kind === "quiz" ? "Viva MCQs" : kind === "compare" ? "Compare codes" : "Experiment " + (+a || 1)) + " · Deep Learning Lab";
   }
   function initTheme() {
     const root = document.documentElement, btn = $("#theme");
@@ -2582,7 +2727,7 @@ window.CODE = {"e01": "# 1. Import\nimport numpy as np\nimport pandas as pd\nimp
   const io = !reduce && "IntersectionObserver" in window ? new IntersectionObserver((es) => es.forEach((e) => {
     if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
   }), { rootMargin: "0px 0px -6% 0px", threshold: 0.06 }) : null;
-  const SEL = ".grid > .card, .algo, .viva-strip, .q-card, .chart, .viva-strip li, .exp-pager a, .topic, .bt, .missed details";
+  const SEL = ".grid > .card, .algo, .cmp-pair, .cmp-card, .viva-strip, .q-card, .chart, .viva-strip li, .exp-pager a, .topic, .bt, .missed details";
   function tag(root) {
     const els = [];
     if (root.matches && root.matches(SEL)) els.push(root);
@@ -2625,7 +2770,7 @@ window.CODE = {"e01": "# 1. Import\nimport numpy as np\nimport pandas as pd\nimp
     const lab = q("lab"), prev = q("prev"), next = q("next"), qz = q("quiz");
     if (!lab) return;
     lab.href = "#/exp/" + (n || 1);
-    lab.classList.toggle("on", !quiz); qz.classList.toggle("on", quiz);
+    lab.classList.toggle("on", !quiz && kind !== "compare"); qz.classList.toggle("on", quiz);
     const pv = quiz ? EXP[EXP.length - 1] : EXP[i - 1], nx = quiz ? null : EXP[i + 1];
     prev.href = pv ? "#/exp/" + pv.n : "#"; prev.setAttribute("aria-disabled", String(!pv));
     next.href = nx ? "#/exp/" + nx.n : "#/quiz"; next.setAttribute("aria-disabled", String(quiz));
