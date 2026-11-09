@@ -369,10 +369,10 @@ pre.code .l:hover::before { color: var(--pop); }
 .opt { position: relative; overflow: hidden; display: flex; align-items: center; gap: 14px; width: 100%; padding: 10px 18px 10px 10px; border-radius: 999px; border: 1.5px solid var(--line-2); background: var(--surface); text-align: left; line-height: 1.4; font-weight: 500;
   transition: border-color .25s, background .25s, color .25s, transform .3s var(--spring); animation: fadeUp .5s var(--ease) both; }
 .opt:nth-child(2) { animation-delay: .06s; } .opt:nth-child(3) { animation-delay: .12s; } .opt:nth-child(4) { animation-delay: .18s; }
-.opt:hover:not([disabled]) { border-color: var(--ink); transform: translateX(6px); }
+@media (hover: hover) { .opt:hover:not([disabled]) { border-color: var(--ink); transform: translateX(6px); } }
 .opt:active:not([disabled]) { transform: scale(.98); }
 .opt .k { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font: 600 .82rem var(--font-body); background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-2); transition: all .3s var(--spring); }
-.opt:hover:not([disabled]) .k { background: var(--ink); color: var(--bg); transform: rotate(-10deg); }
+@media (hover: hover) { .opt:hover:not([disabled]) .k { background: var(--ink); color: var(--bg); transform: rotate(-10deg); } }
 .opt[disabled] { cursor: default; }
 .opt.right { border-color: var(--good); background: var(--good-soft); animation: pulse .5s var(--spring); }
 .opt.right .k { background: var(--good); color: #fff; border-color: var(--good); transform: scale(1.1); }
@@ -386,6 +386,9 @@ pre.code .l:hover::before { color: var(--pop); }
 .why .verdict.good { color: var(--good); } .why .verdict.bad { color: var(--bad); }
 .next-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
 .next-row .btn.primary:not([hidden]) { animation: popIn .45s var(--spring) both; padding: 14px 24px; }
+.btn[hidden] { display: none !important; }
+.q-card { scroll-margin-top: calc(var(--top-h) + 16px); }
+.next-row .btn.ghost { background: transparent; }
 .kbd { font: 500 .72rem var(--font-mono); color: var(--muted); }
 
 .res { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 28px; align-items: center; }
@@ -432,6 +435,16 @@ pre.code .l:hover::before { color: var(--pop); }
   .dock svg { width: 21px; height: 21px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
   .dock a:active { transform: scale(.92); }
   body { padding-bottom: 92px; }
+  /* during a quiz the dock drives the questions: Prev / Next live in the thumb zone */
+  body.quiz-on .dock a[data-dock="quiz"] { flex-grow: 0; }
+  body.quiz-on .dock a[data-dock="quiz"] span { display: none; }
+  .dock a.go { background: var(--pop); color: #fff; flex-grow: 1; box-shadow: 0 8px 20px rgba(215, 57, 43, .32); }
+  .dock a.go span { display: inline; animation: slideRight .35s var(--ease) both; }
+  .dock a.go svg { animation: nudge 1.2s ease-in-out infinite; }
+  @keyframes nudge { 50% { transform: translateX(4px); } }
+  body.quiz-on .next-row { display: none; }
+  .q-card { scroll-margin-top: calc(var(--top-h) + 84px); }
+  .why { scroll-margin-bottom: 110px; }
 }
 
 /* ---------- intro screen (shown once per visit when opened without a link) ---------- */
@@ -503,7 +516,14 @@ pre.code .l:hover::before { color: var(--pop); }
   .exp-pager b { font-size: 1.05rem; }
   .kbd { display: none; }
   .seg button { width: 50px; height: 50px; }
-  .opt { border-radius: 26px; }
+  .opt { border-radius: 24px; padding: 7px 14px 7px 7px; gap: 11px; line-height: 1.35; }
+  .opt .k { width: 32px; height: 32px; font-size: .76rem; }
+  .opts { gap: 8px; }
+  .q-text { font-size: clamp(1.45rem, 1.1rem + 2.4vw, 1.9rem); margin: 10px 0 14px; }
+  .play-top { margin-bottom: 12px; padding: 6px 6px 6px 14px; gap: 10px; }
+  .meta span { padding: 5px 9px; }
+  .why { margin-top: 12px; padding: 12px 16px; font-size: .92rem; line-height: 1.5; }
+  .why .verdict { font-size: 1.35rem; }
   .intro-mosaic { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 0 8px; }
   .intro-tile { padding: 12px; min-height: 120px; border-radius: 18px; }
   .intro-tile b { font-size: 2.4rem; }
@@ -2509,41 +2529,102 @@ window.CODE = {"e01": "# 1. Import\nimport numpy as np\nimport pandas as pd\nimp
       const k = e.key.toLowerCase(), idx = "1234".includes(k) && k ? +k - 1 : "abcd".indexOf(k);
       if (it.picked < 0 && idx >= 0 && idx < it.opts.length && k.length === 1) { e.preventDefault(); pick(idx); }
       else if (it.picked >= 0 && (e.key === "Enter" || e.key === " " || e.key === "ArrowRight")) { e.preventDefault(); next(); }
+      else if (e.key === "ArrowLeft" && S.i > 0) { e.preventDefault(); go(S.i - 1); }
     };
-    document.addEventListener("keydown", onKey); quizCleanup = () => document.removeEventListener("keydown", onKey);
 
+    /* mobile dock becomes the quiz controller: Prev = previous question, Next = next question */
+    const dockA = (k) => document.querySelector('.dock [data-dock="' + k + '"]');
+    const dPrev = dockA("prev"), dNext = dockA("next");
+    const onDock = (e) => {
+      const a = e.target.closest && e.target.closest(".dock a"); if (!a || !S.items[S.i]) return;
+      if (a.dataset.dock === "next") { e.preventDefault(); e.stopPropagation(); if (S.items[S.i].picked >= 0) next(); }
+      else if (a.dataset.dock === "prev") { e.preventDefault(); e.stopPropagation(); if (S.i > 0) go(S.i - 1); }
+    };
+    function syncQuizDock() {
+      if (!dNext) return;
+      const it = S.items[S.i], answered = it.picked >= 0, last = S.i === total - 1;
+      dNext.href = "#/quiz"; dPrev.href = "#/quiz";
+      dNext.setAttribute("aria-disabled", String(!answered)); dNext.classList.toggle("go", answered);
+      dNext.setAttribute("aria-label", last ? "See results" : "Next question");
+      const sp = dNext.querySelector("span"); if (sp) sp.textContent = last ? "Results" : "Next";
+      dPrev.setAttribute("aria-disabled", String(S.i === 0)); dPrev.setAttribute("aria-label", "Previous question");
+    }
+    function resetDock() {
+      document.body.classList.remove("quiz-on");
+      if (dNext) { dNext.classList.remove("go"); const sp = dNext.querySelector("span"); if (sp) sp.textContent = "Next"; dNext.setAttribute("aria-label", "Next experiment"); dPrev.setAttribute("aria-label", "Previous experiment"); }
+      if (window.syncDock) window.syncDock();
+    }
+
+    /* swipe left / right on the question card */
+    let tx = 0, ty = 0, tOn = false;
+    const onTs = (e) => { if (e.touches.length !== 1 || !e.target.closest(".q-card")) { tOn = false; return; } tOn = true; tx = e.touches[0].clientX; ty = e.touches[0].clientY; };
+    const onTe = (e) => {
+      if (!tOn) return; tOn = false;
+      const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+      if (Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.6) return;
+      if (dx < 0 && S.items[S.i] && S.items[S.i].picked >= 0) next(); else if (dx > 0 && S.i > 0) go(S.i - 1);
+    };
+
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("click", onDock, true);
+    main.addEventListener("touchstart", onTs, { passive: true });
+    main.addEventListener("touchend", onTe, { passive: true });
+    document.body.classList.add("quiz-on");
+    quizCleanup = () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("click", onDock, true);
+      main.removeEventListener("touchstart", onTs); main.removeEventListener("touchend", onTe);
+      resetDock();
+    };
+
+    const metaHtml = () => "<span>Q " + (S.i + 1) + "/" + total + "</span><span>Score " + S.score + "</span><span>Streak " + S.streak + "</span>";
     function show() {
       const it = S.items[S.i], q = it.q;
       main.innerHTML =
-        '<div class="view quiz"><div class="card q-card"><div class="play-top"><div class="bar"><i></i></div><div class="meta"><span>Q ' + (S.i + 1) + "/" + total + "</span><span>Score " + S.score + "</span><span>Streak " + S.streak + "</span></div></div>" +
+        '<div class="view quiz"><div class="card q-card"><div class="play-top"><div class="bar"><i></i></div><div class="meta">' + metaHtml() + "</div></div>" +
         '<div><span class="tag">' + esc(topicName(q.exp)) + "</span> " + (q.pdf ? '<span class="tag pdf">Viva PDF</span>' : "") + "</div>" +
         '<div class="q-text">' + esc(q.text) + '</div><div class="opts">' +
         it.opts.map((o, k) => '<button class="opt" data-k="' + k + '"><span class="k">' + "ABCD"[k] + "</span><span>" + esc(o) + "</span></button>").join("") +
-        '</div><div data-why></div><div class="next-row"><span class="kbd">Keys: 1–4 to answer · Enter for next</span><button class="btn primary" data-next hidden></button></div></div></div>';
-      requestAnimationFrame(() => { $(".bar i").style.width = Math.round((S.i / total) * 100) + "%"; });
+        '</div><div data-why></div><div class="next-row"><span class="kbd">Keys: 1–4 to answer · Enter for next · ← back</span><span style="display:flex;gap:10px;margin-left:auto">' +
+        (S.i > 0 ? '<button class="btn ghost" data-prev>Previous</button>' : "") + '<button class="btn primary" data-next hidden></button></span></div></div></div>';
+      requestAnimationFrame(() => { $(".bar i").style.width = Math.round(((S.i + (it.picked >= 0 ? 1 : 0)) / total) * 100) + "%"; });
       $$(".opt").forEach((b) => b.addEventListener("click", () => pick(+b.dataset.k)));
       $("[data-next]").addEventListener("click", next);
+      const pb = $("[data-prev]"); if (pb) pb.addEventListener("click", () => go(S.i - 1));
+      if (it.picked >= 0) paint(it, false);
+      syncQuizDock();
+      /* bring the top of the question back into view (below the sticky header + topic rail) */
+      const card = $(".q-card"), offset = parseFloat(getComputedStyle(card).scrollMarginTop) || 0;
+      if (card.getBoundingClientRect().top < offset - 4) card.scrollIntoView({ block: "start", behavior: reduceMotion() ? "auto" : "smooth" });
+    }
+    function paint(it, fresh) {
+      const k = it.picked, ok = k === it.right;
+      $$(".opt").forEach((b, i) => { b.disabled = true; if (i === it.right) b.classList.add("right"); else if (i === k) b.classList.add("wrong"); else b.classList.add("dim"); });
+      const verdict = fresh ? (ok ? (S.streak >= 3 ? "Correct · " + S.streak + " in a row!" : "Correct!") : "Not quite.") : ok ? "You got this one" : "You missed this one";
+      $("[data-why]").innerHTML = '<div class="why"><div class="verdict ' + (ok ? "good" : "bad") + '">' + verdict + "</div>" + esc(it.q.why) + "</div>";
+      const nb = $("[data-next]"); nb.hidden = false; nb.textContent = S.i === total - 1 ? "See results" : "Next question";
+      if (fresh) nb.focus({ preventScroll: true });
     }
     function pick(k) {
       const it = S.items[S.i]; if (it.picked >= 0) return;
       it.picked = k; const ok = k === it.right;
       if (ok) { S.score++; S.streak++; S.best = Math.max(S.best, S.streak); } else S.streak = 0;
-      $$(".opt").forEach((b, i) => { b.disabled = true; if (i === it.right) b.classList.add("right"); else if (i === k) b.classList.add("wrong"); else b.classList.add("dim"); });
-      $("[data-why]").innerHTML = '<div class="why"><div class="verdict ' + (ok ? "good" : "bad") + '">' + (ok ? (S.streak >= 3 ? "Correct · " + S.streak + " in a row!" : "Correct!") : "Not quite.") + "</div>" + esc(it.q.why) + "</div>";
-      const nb = $("[data-next]"); nb.hidden = false; nb.textContent = S.i === total - 1 ? "See results" : "Next question"; nb.focus({ preventScroll: true });
-      $(".meta").innerHTML = "<span>Q " + (S.i + 1) + "/" + total + "</span><span>Score " + S.score + "</span><span>Streak " + S.streak + "</span>";
+      paint(it, true);
+      $(".meta").innerHTML = metaHtml();
       $(".bar i").style.width = Math.round(((S.i + 1) / total) * 100) + "%";
+      syncQuizDock();
+      /* on small screens make sure the explanation is visible above the dock */
+      const why = $(".why");
+      if (why && why.getBoundingClientRect().bottom > window.innerHeight - 100) setTimeout(() => why.scrollIntoView({ block: "nearest", behavior: reduceMotion() ? "auto" : "smooth" }), 120);
     }
+    function go(i) { if (i < 0 || i >= total) return; S.i = i; show(); }
     function next() {
-      if (S.i < total - 1) {
-        const scrollY = window.scrollY;
-        S.i++;
-        show();
-        requestAnimationFrame(() => window.scrollTo({ top: scrollY, left: 0, behavior: "instant" }));
-      } else results();
+      if (S.items[S.i].picked < 0) return;
+      if (S.i < total - 1) go(S.i + 1); else results();
     }
 
     function results() {
+      cleanup();
       const pct = Math.round((S.score / total) * 100);
       if (total >= 10) { const b = store.get("quizBest", null); if (!b || pct > b.pct) store.set("quizBest", { pct, n: total }); }
       const byTopic = {}; S.items.forEach((it) => { const t = (byTopic[it.q.exp] = byTopic[it.q.exp] || { n: 0, ok: 0 }); t.n++; if (it.picked === it.right) t.ok++; });
@@ -2775,6 +2856,7 @@ window.CODE = {"e01": "# 1. Import\nimport numpy as np\nimport pandas as pd\nimp
     prev.href = pv ? "#/exp/" + pv.n : "#"; prev.setAttribute("aria-disabled", String(!pv));
     next.href = nx ? "#/exp/" + nx.n : "#/quiz"; next.setAttribute("aria-disabled", String(quiz));
   }
+  window.syncDock = syncDock;
   window.addEventListener("hashchange", syncDock); syncDock();
 
   /* intro screen: once per session, only when the page is opened without a deep link */
